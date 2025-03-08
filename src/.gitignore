@@ -1,0 +1,54 @@
+# Build directories
+build/
+install/
+log/
+
+# Colcon files
+.colcon_cd_root
+
+# Python compiled files
+*.py[cod]
+__pycache__/
+*.so
+.Python
+
+# Eclipse IDE
+.project
+.cproject
+.settings/
+
+# VSCode
+.vscode/
+
+# ROS 2 specific
+**/msg/_*.py
+**/srv/_*.py
+**/action/_*.py
+
+# Generated header files in package src directories
+*/src/*/*.h
+
+# Dynamic reconfigure
+*.cfg/*.cfgc
+*/cfg/cpp/
+*/src/*/cfg/
+
+# Backup files
+*~
+*.bak
+
+# Dependency files
+msg_gen/
+srv_gen/
+
+# Gazebo specific
+*.world.user
+
+# Test results
+gtest/
+_gtest_results/
+
+# CMake temp files
+CMakeFiles/
+CMakeCache.txt
+
