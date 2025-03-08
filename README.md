@@ -1,90 +1,112 @@
-# Lunar Harvesting Rover with ROS2 + Gazebo11
+# ASPECT (Autonomous Surface Precision Excavation for Celestial Terrain)
 
-A simulation environment for an autonomous rover using ROS 2 Humble and Gazebo 11, featuring navigation, control, and sensor integration capabilities.
+A ROS 2 Humble + Gazebo 11 simulation and physical prototype of a lunar mining rover designed for in-situ resource utilization (ISRU) on the Moon, with progressive testing from simulation to extreme Earth environments.
 
-## Overview
+## Project Goals
 
-This project provides a complete simulation setup for a skid-steer rover platform. It includes the rover model, simulation environment, and ROS 2 integration for control and sensing. The repository is structured to facilitate both simulation experiments and eventual deployment to physical hardware.
+This project aims to:
 
-## Features
+- Create a simulation-to-hardware pipeline for lunar regolith excavation using ROS 2 Humble and Gazebo 11 with Bekker-Wong terrain modeling
+- Develop and validate a 1:10 scale rover prototype capable of excavating ≥5g/min of lunar regolith analog at <50W power consumption
+- Test rover capabilities progressively through simulation, backyard tests, Arctic environment (Svalbard), and eventually Atacama Desert conditions
+- Advance technology readiness level from TRL-3 to TRL-6 by 2028
+- Establish technical foundations for future lunar hydrogen production capabilities (target: 10t/yr by 2032)
+- Align development with NASA ISRU Strategic Plan and ESA Analog Handbook standards
 
-- Fully simulated rover model in Gazebo 11
-- ROS 2 - Gazebo bridge integration
-- Navigation and path planning capabilities
-- Simulated sensors (LiDAR, cameras, IMU)
-- Teleop control options
-- Autonomous navigation examples
+## System Architecture
+
+- **Simulation Environment**: ROS 2 Humble + Gazebo 11 with Bekker-Wong regolith plugin
+- **Hardware Platform**: 
+  - 1:10 scale rover chassis (3D printed in PETG/PLA+)
+  - Motors: SG90 servos/Faulhaber 1524 motors
+  - Computing: Raspberry Pi + GY-521 IMU
+  - Vision: ESP32-CAM with OpenCV edge detection
+  - Based on modified NASA Open-Source Rover design
+
+## Development Roadmap
+
+### 2025 Q1-Q2: Foundation & Simulation
+- Initial ROS 2/Gazebo setup with lunar terrain simulation
+- Prototype hardware integration
+- Benchmark: Process 50g volcanic ash (regolith analog)
+- Data collection: Excavation rate (g/min) and power consumption (W)
+
+### 2025 Q3-Q4: Field Testing & Validation
+- Arctic testing at Svalbard (72h continuous operation)
+- Sensor fusion implementation
+- Target: 5kg/30min excavation benchmark
+- TRL-3 validation through environmental testing
+
+### 2026 and Beyond
+- Atacama Desert field trials
+- Electrostatic regolith separation testing
+- Scaling for eventual lunar deployment
 
 ## Dependencies
 
 - ROS 2 Humble
 - Gazebo 11
-- ros_gz packages for ROS 2 - Gazebo integration
+- Bekker-Wong terrain modeling plugin
+- OpenCV
 - Navigation2 stack
 
 ## Installation
 
 ### Prerequisites
 
-Install ROS 2 Humble (if not already installed)
+Install ROS 2 Humble
 Follow instructions at: https://docs.ros.org/en/humble/Installation.html
 Install Gazebo 11
 
+```bash
 sudo apt update
-sudo apt install gazebo
+sudo apt install gazebo11
+```
 
 ### Building the Project
 
 Create a workspace
-
-mkdir -p ~/rover_ws/src
-cd ~/rover_ws/src
+```bash
+mkdir -p ~/lunar_rover_ws/src
+cd ~/lunar_rover_ws/src
+```
 Clone this repository
-
-git clone https://github.com/yourusername/rover_ros2_gazebo11.git
+```bash
+git clone https://github.com/yourusername/lunar_regolith_excavator.git
+```
 Install dependencies
-
-cd ~/rover_ws
+```bash
+cd ~/lunar_rover_ws
 rosdep update
 rosdep install --from-paths src --ignore-src -r -y
+```
 Build the workspace
-
+```bash
 colcon build
 source install/setup.bash
-
+```
 ## Usage
 
-Launch the rover simulation:
-ros2 launch rover_bringup rover_sim.launch.py
-
-For teleop control:
-ros2 run teleop_twist_keyboard teleop_twist_keyboard
-
-
+Launch the lunar rover simulation:
+```bash
+ros2 launch aspect_bringup lunar_sim.launch.py
+```
 ## Project Structure
 
-- `rover_description/`: URDF model files for the rover
-- `rover_gazebo/`: Gazebo-specific configuration and world files
-- `rover_control/`: Control algorithms and parameters
-- `rover_navigation/`: Navigation configuration and maps
-- `rover_bringup/`: Launch files and configuration for bringing up the system
+- `aspect_description/`: URDF model files for the rover
+- `aspect_gazebo/`: Gazebo-specific configuration and lunar world files
+- `aspect_control/`: Control algorithms for regolith excavation
+- `aspect_navigation/`: Navigation and path planning for lunar terrain
+- `aspect_bringup/`: Launch files and configuration
 
-## Development
+## Partners & Acknowledgments
 
-When developing new features:
-
-1. Create a new branch: `git checkout -b feature/your-feature-name`
-2. Make your changes and test thoroughly
-3. Commit your changes with descriptive messages
-4. Push to your fork and submit a pull request
+- ROS 2 and Gazebo communities
+- Contributors to the ros_gz packages
+- ESA/NASA ISRU Strategic Plans
 
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- ROS 2 and Gazebo communities
-- Contributors to the ros_gz packages
 
 
