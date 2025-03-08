@@ -56,8 +56,8 @@ This project aims to:
 
 Install ROS 2 Humble
 Follow instructions at: https://docs.ros.org/en/humble/Installation.html
-Install Gazebo 11
 
+Install Gazebo 11
 ```bash
 sudo apt update
 sudo apt install gazebo11
@@ -67,16 +67,16 @@ sudo apt install gazebo11
 
 Create a workspace
 ```bash
-mkdir -p ~/lunar_rover_ws/src
-cd ~/lunar_rover_ws/src
+mkdir -p ~/aspect_ws/src
+cd ~/aspect_ws/src
 ```
 Clone this repository
 ```bash
-git clone https://github.com/yourusername/lunar_regolith_excavator.git
+git clone https://github.com/bk-bf/aspect_ros2_gazebo11.git
 ```
 Install dependencies
 ```bash
-cd ~/lunar_rover_ws
+cd ~/aspect_ws
 rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 ```
