@@ -1,4 +1,4 @@
-# Rover ROS2 Gazebo11
+# Lunar Harvesting Rover ROS2 Gazebo11
 
 A simulation environment for an autonomous rover using ROS 2 Humble and Gazebo 11, featuring navigation, control, and sensor integration capabilities.
 
