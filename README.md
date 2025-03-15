@@ -1,12 +1,12 @@
 # ASPECT (Autonomous Surface Precision Excavation for Celestial Terrain)
 
-A ROS 2 Humble + Gazebo 11 simulation and physical prototype of a lunar mining rover designed for in-situ resource utilization (ISRU) on the Moon, with progressive testing from simulation to extreme Earth environments.
+A ROS 2 Humble + Gazebo simulation and physical prototype of a lunar mining rover designed for in-situ resource utilization (ISRU) on the Moon, with progressive testing from simulation to extreme Earth environments.
 
 ## Project Goals
 
 This project aims to:
 
-- Create a simulation-to-hardware pipeline for lunar regolith excavation using ROS 2 Humble and Gazebo 11 with Bekker-Wong terrain modeling
+- Create a simulation-to-hardware pipeline for lunar regolith excavation using ROS 2 Humble and Gazebo lunar terrain modeling
 - Develop and validate a 1:10 scale rover prototype capable of excavating ≥5g/min of lunar regolith analog at <50W power consumption
 - Test rover capabilities progressively through simulation, backyard tests, Arctic environment (Svalbard), and eventually Atacama Desert conditions
 - Advance technology readiness level from TRL-3 to TRL-6 by 2028
@@ -15,7 +15,7 @@ This project aims to:
 
 ## System Architecture
 
-- **Simulation Environment**: ROS 2 Humble + Gazebo 11 with Bekker-Wong regolith plugin
+- **Simulation Environment**: ROS 2 Humble + Gazebo Fortress and standard heightmaps implementation for lunar terrain modeling
 - **Hardware Platform**: 
   - 1:10 scale rover chassis (3D printed in PETG/PLA+)
   - Motors: SG90 servos/Faulhaber 1524 motors
@@ -27,7 +27,7 @@ This project aims to:
 
 ### 2025 Q1-Q2: Simulation Foundation
 
-- ROS 2 Humble + Gazebo 11 environment setup with Bekker-Wong terrain modeling
+- ROS 2 Humble + Gazebo Fortress environment setup with heightmaps implementation for lunar terrain modeling
 - Development of lunar regolith excavation simulation model
 - Creation of Harvesting Algorithm v0.5 for autonomous operation
 - Simulation benchmarks: Virtual excavation rate ≥5g/min at <50W power consumption
@@ -59,8 +59,8 @@ This project aims to:
 ## Dependencies
 
 - ROS 2 Humble
-- Gazebo 11
-- Bekker-Wong terrain modeling plugin
+- Gazebo Fortress
+- Standard heightmaps implementation for lunar terrain modeling
 - OpenCV
 - Navigation2 stack
 
@@ -71,10 +71,16 @@ This project aims to:
 Install ROS 2 Humble
 Follow instructions at: https://docs.ros.org/en/humble/Installation.html
 
-Install Gazebo 11
+Install Gazebo Fortress
 ```bash
-sudo apt update
-sudo apt install gazebo11
+sudo apt-get update
+sudo apt-get install lsb-release gnupg
+```
+```bash
+sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+sudo apt-get update
+sudo apt-get install ignition-fortress
 ```
 
 ### Building the Project
@@ -121,6 +127,6 @@ ros2 launch aspect_bringup lunar_sim.launch.py
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the Apache 2.0 License - see the LICENSE file for details.
 
 
