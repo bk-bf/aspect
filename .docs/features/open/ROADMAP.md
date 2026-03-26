@@ -23,8 +23,8 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 > Goal: finish the scaffolded nodes so the packages are functional, not just
 > compilable. Copyright headers unblock the linter re-enable.
 
-- [ ] T-001 [`aspect_control`]: Implement keyboard input in `teleop_node.py` (termios raw mode)
-- [ ] T-002 [`aspect_navigation`]: Expose `/goto_waypoint` service in `simple_waypoint_nav.py`
+- [x] T-001 [`aspect_control`]: Implement keyboard input in `teleop_node.py` (termios raw mode)
+- [x] T-002 [`aspect_navigation`]: Expose `/goto_waypoint` service in `simple_waypoint_nav.py`
 - [ ] T-003 [all]: Add Apache 2.0 copyright headers to all source files missing them
 - [ ] T-004 [all]: Re-enable `ament_copyright` linter check once T-003 is done
 - [ ] T-005 [`aspect_description`]: Replace box geometry URDF with real rover meshes

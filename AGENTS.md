@@ -151,7 +151,7 @@ graph.
 ## Launch Commands
 
 ```bash
-# Launch lunar south pole simulation
+# Launch lunar south pole simulation (server-only, headless — see Gazebo Quirks below)
 ros2 launch aspect_bringup launch_lunar_south_pole.py
 
 # Launch with a custom world path
@@ -160,11 +160,110 @@ ros2 launch aspect_bringup launch_lunar_south_pole.py world:=/path/to/world.sdf
 # View rover URDF in RViz2
 ros2 launch aspect_description view_urdf.launch.py
 
-# Teleoperation node
+# Teleoperation node (requires interactive TTY: docker run -it)
 ros2 launch aspect_control teleop.launch.py
 
-# Waypoint navigation node
+# Waypoint navigation node (separate from main launch)
 ros2 launch aspect_navigation waypoint_nav.launch.py
+```
+
+### Gazebo Quirks — read before running the sim
+
+**1. Server-only mode (`-s` flag)**
+
+`gz sim` normally starts both the GUI and the physics server as a single process.
+In a headless container (no GPU / no display), the Qt/OGRE GUI thread crashes — and
+**takes the physics server down with it**. The launch file uses `-s` (server-only) to
+skip the GUI entirely. Never remove `-s` when running in the container without rocker.
+
+```bash
+# What the launch file runs (do not change inside container):
+gz sim -s -v 4 <world.sdf>
+
+# To get the GUI interactively, use rocker on the host:
+rocker --x11 --nvidia --user --volume $(pwd):/workspace aspect:jazzy
+# then inside the rocker shell, remove -s from the launch file or override:
+ros2 launch aspect_bringup launch_lunar_south_pole.py
+```
+
+**2. Server-only starts paused**
+
+When running with `-s`, Gazebo starts with the simulation **paused** — it normally
+waits for the GUI client to unpause it. After launch, you must unpause manually:
+
+```bash
+gz service -s /world/lunar_south_pole/control \
+  --reqtype gz.msgs.WorldControl \
+  --reptype gz.msgs.Boolean \
+  --timeout 5000 \
+  --req 'pause: false'
+```
+
+Expected reply: `data: true`. Without this, `/clock` will not publish and the EKF
+node will log `Waiting for clock to start...` indefinitely. `/odometry/raw` will also
+not publish (physics not stepping).
+
+**3. `/clock` bridge is lazy**
+
+`ros_gz_bridge` creates subscriptions lazily. `/clock` only starts flowing into ROS 2
+once something subscribes to it on the ROS side. `ros2 topic echo /clock` before the
+bridge has connected will time out with a `does not appear to be published yet` warning
+even though Gazebo is publishing. Give it 2–3 seconds or subscribe from a node first.
+
+**4. `cmd_vel` topic routing**
+
+The diff-drive plugin inside Gazebo listens on Gazebo topic
+`/model/aspect_rover/cmd_vel`. The bridge argument is:
+
+```
+/model/aspect_rover/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist
+```
+
+with a ROS-side remapping that exposes it as `/cmd_vel`. Publishing to `/cmd_vel` in
+ROS 2 therefore reaches the plugin. The bridge log confirms this:
+
+```
+Passing message from ROS geometry_msgs/msg/Twist to Gazebo gz.msgs.Twist
+```
+
+If you see the log line but the rover does not move, check that the sim is unpaused
+(Quirk 2) and that physics has not crashed (Quirk 5).
+
+**5. dartsim / ODE physics crash on contact**
+
+dartsim's ODE LCP solver can abort with:
+
+```
+ODE INTERNAL ERROR 1: assertion "d[i] != dReal(0.0)" failed in _dLDLTRemove()
+```
+
+This happens when:
+- The rover is spawned too high and falls with large impact energy (old default: z=0.5 m)
+- Inertia tensors are physically inconsistent (old values: `ixx=iyy=izz=0.0001` for all)
+- The world has no collision geometry (dartsim cannot use heightmap collision)
+
+**Current fixes (already applied):**
+- Default spawn z = 0.05 m (just above wheel radius)
+- Chassis inertia corrected to box formula: `ixx=0.000273, iyy=0.000482, izz=0.000542`
+- Wheel inertia corrected to cylinder formula: `ixx=iyy=0.000003, izz=0.000005`
+- Flat `ground_plane` added to `lunar_south_pole.world` (heightmap visual kept; only
+  collision is missing from dartsim)
+
+**6. LSP false positives in ROS 2 files**
+
+The host environment does not have a ROS 2 install overlay, so editors/LSP servers
+report import errors for `rclpy`, `geometry_msgs`, `launch`, `ament_*`, `xacro`, etc.
+**These are false positives.** All ROS 2 imports resolve correctly inside the container.
+Do not add `# type: ignore` or `# noqa` comments to suppress them — they will cause
+pep257/flake8 failures inside the container.
+
+```
+# Expected false-positive LSP errors (host only — safe to ignore):
+ERROR: Import "rclpy" could not be resolved
+ERROR: Import "geometry_msgs.msg" could not be resolved
+ERROR: Import "launch.actions" could not be resolved
+ERROR: Import "xacro" could not be resolved
+ERROR: "LaunchDescription" is unknown import symbol
 ```
 
 ---
@@ -346,8 +445,8 @@ If SSH fails, do not fall back to HTTPS — fix the SSH key issue instead.
 | Copyright headers absent | All source files | Linter check skipped until headers added |
 | cpplint disabled | `aspect_gazebo/CMakeLists.txt` | Re-enable once C++ code is added |
 | `aspect_description` URDF stub | `urdf/aspect_rover.urdf.xacro` | Box geometry only — replace with real meshes |
-| `aspect_control` teleop incomplete | `teleop_node.py` | Needs keyboard/joy input implementation |
-| `aspect_navigation` service missing | `simple_waypoint_nav.py` | `/goto_waypoint` service not yet implemented |
+| `aspect_control` teleop | `teleop_node.py` | termios keyboard loop implemented; joy input not yet added |
+| EKF `/odometry/filtered` lag | bringup launch | Requires `/clock` to start; bridge lazy-connects; allow ~30 s warmup |
 
 ---
 

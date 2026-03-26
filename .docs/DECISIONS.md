@@ -128,6 +128,31 @@ the TX2540m1 server CPU — viable fallback but too slow for production RL train
 
 ---
 
+## D-011 — Gazebo server-only mode (`-s`) as default in launch file
+
+**Date:** 2026-03-26  
+**Status:** Active
+
+**Decision:** `launch_lunar_south_pole.py` runs `gz sim -s -v 4 <world>` (server-only,
+no GUI). The simulation starts **paused**; unpause with:
+
+```bash
+gz service -s /world/lunar_south_pole/control \
+  --reqtype gz.msgs.WorldControl --reptype gz.msgs.Boolean \
+  --timeout 5000 --req 'pause: false'
+```
+
+**Rationale:** `gz sim` normally starts GUI and physics server in a single process.
+In a headless container (no GPU, no display), the Qt/OGRE GUI thread crashes and takes
+the physics server down with it (SIGKILL). Server-only mode (`-s`) skips the GUI
+entirely and is the correct approach for the autoresearcher headless CI environment.
+For interactive GUI use, `rocker --x11` on the host is the documented workflow.
+
+**Rejected:** Running `gz sim` without `-s` in the container — GUI crash reproducibly
+kills the physics server; Xvfb virtual display does not satisfy OGRE's shader requirements.
+
+---
+
 ## D-009 — Model storage on Hugging Face Hub
 
 **Date:** 2026-02-15  
