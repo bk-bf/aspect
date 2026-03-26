@@ -295,6 +295,50 @@ if __name__ == '__main__':
 
 ---
 
+## Git Workflow — Commit and Push Regularly
+
+**Agents must commit and push to GitHub via SSH after every meaningful change.**
+
+### When to commit
+- After completing any discrete unit of work (new file, feature, bug fix, config change).
+- After editing `AGENTS.md` or any `.docs/` planning document.
+- Before switching tasks or ending a session.
+- At minimum: after every 2–3 file changes, even if work is still in progress (use `wip:` prefix).
+
+### How to commit and push
+
+```bash
+# Stage all changes not excluded by .gitignore
+git add .
+
+# Commit with a Conventional Commit message
+git commit -m "feat: <short description>"
+
+# Push via SSH (remote is already configured as git@github.com:bk-bf/aspect_rover.git)
+git push origin main
+```
+
+### Verify SSH works
+```bash
+ssh -T git@github.com
+# Expected: "Hi bk-bf! You've successfully authenticated..."
+```
+
+If SSH fails, do not fall back to HTTPS — fix the SSH key issue instead.
+
+### Commit message prefixes
+| Prefix | Use for |
+|---|---|
+| `feat:` | New functionality |
+| `fix:` | Bug fix |
+| `docs:` | Documentation / `.docs/` / `AGENTS.md` changes |
+| `refactor:` | Code restructuring without behaviour change |
+| `test:` | Test additions or fixes |
+| `chore:` | Build, config, dependency changes |
+| `wip:` | Work in progress — incomplete but worth persisting |
+
+---
+
 ## Known Technical Debt
 
 | Item | Location | Status |
