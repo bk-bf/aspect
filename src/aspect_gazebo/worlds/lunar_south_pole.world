@@ -62,5 +62,21 @@
       </link>
     </model>
 
+    <!-- Flat ground plane for physics (dartsim cannot use heightmap collision).
+         The heightmap visual is kept above; this plane provides collision only. -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>10000 10000</size>
+            </plane>
+          </geometry>
+        </collision>
+      </link>
+    </model>
+
   </world>
 </sdf>

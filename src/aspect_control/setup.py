@@ -13,8 +13,9 @@
 # limitations under the License.
 """Setup configuration for aspect_control package."""
 
-import os
 from glob import glob
+import os
+
 from setuptools import setup
 
 package_name = 'aspect_control'

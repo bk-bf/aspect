@@ -54,12 +54,14 @@ def generate_launch_description():
         'y', default_value='0.0', description='Spawn Y position (metres)'
     )
     z_arg = DeclareLaunchArgument(
-        'z', default_value='0.5', description='Spawn Z position (metres)'
+        'z', default_value='0.05', description='Spawn Z position (metres)'
     )
 
     # ── 1. Gazebo Harmonic simulator ──────────────────────────────────────
+    # -s = server-only (no GUI); safe for headless/CI environments.
+    # Remove -s to launch the full GUI when running interactively with rocker.
     gz_sim = ExecuteProcess(
-        cmd=['gz', 'sim', '-v', '4', LaunchConfiguration('world')],
+        cmd=['gz', 'sim', '-s', '-v', '4', LaunchConfiguration('world')],
         output='screen'
     )
 
@@ -100,6 +102,8 @@ def generate_launch_description():
     # ── 4. ros_gz_bridge ─────────────────────────────────────────────────
     # Bridges Gazebo ↔ ROS 2 topics.
     # Format: <gz_topic>@<ros_type>[gz_type]
+    # Remappings rename the bridged topics to standard ROS 2 names,
+    # removing the need for a separate topic_tools relay node.
     ros_gz_bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -108,7 +112,9 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}],
         arguments=[
             # cmd_vel: ROS 2 → Gazebo
-            '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
+            # The diff-drive plugin listens on /model/aspect_rover/cmd_vel
+            # inside Gazebo; the ROS-side remapping below exposes /cmd_vel.
+            '/model/aspect_rover/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
             # odometry: Gazebo → ROS 2
             '/model/aspect_rover/odometry'
             '@nav_msgs/msg/Odometry'
@@ -123,32 +129,11 @@ def generate_launch_description():
             '[gz.msgs.IMU',
             # clock: Gazebo → ROS 2
             '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-        ]
-    )
-
-    # Remap the bridged odometry topic to the standard ROS 2 name
-    odom_remap = Node(
-        package='topic_tools',
-        executable='relay',
-        name='odom_relay',
-        output='screen',
-        parameters=[{'use_sim_time': True}],
-        arguments=[
-            '/model/aspect_rover/odometry',
-            '/odometry/raw'
-        ]
-    )
-
-    # Remap joint states to standard topic
-    joint_states_remap = Node(
-        package='topic_tools',
-        executable='relay',
-        name='joint_states_relay',
-        output='screen',
-        parameters=[{'use_sim_time': True}],
-        arguments=[
-            '/model/aspect_rover/joint_states',
-            '/joint_states'
+        ],
+        remappings=[
+            ('/model/aspect_rover/cmd_vel', '/cmd_vel'),
+            ('/model/aspect_rover/odometry', '/odometry/raw'),
+            ('/model/aspect_rover/joint_states', '/joint_states'),
         ]
     )
 
@@ -172,7 +157,5 @@ def generate_launch_description():
         robot_state_publisher,
         spawn_rover,
         ros_gz_bridge,
-        odom_remap,
-        joint_states_remap,
         ekf_node,
     ])

@@ -46,7 +46,8 @@ def _get_key(fd: int) -> str:
 
 
 class TeleopNode(Node):
-    """Publish velocity commands to /cmd_vel from keyboard input.
+    """
+    Publish velocity commands to /cmd_vel from keyboard input.
 
     Topics
     ------
@@ -64,7 +65,8 @@ class TeleopNode(Node):
         self.get_logger().info('TeleopNode started — keyboard teleoperation active')
 
     def send_velocity(self, linear: float, angular: float) -> None:
-        """Publish a single Twist message.
+        """
+        Publish a single Twist message.
 
         Parameters
         ----------
@@ -72,6 +74,7 @@ class TeleopNode(Node):
             Forward/backward velocity in m/s.
         angular:
             Rotational velocity in rad/s.
+
         """
         msg = Twist()
         msg.linear.x = linear * self.LINEAR_SPEED

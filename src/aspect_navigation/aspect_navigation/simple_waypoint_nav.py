@@ -23,7 +23,8 @@ from rclpy.node import Node
 
 
 class SimpleWaypointNav(Node):
-    """Navigate the rover to a (x, y) waypoint using proportional control.
+    """
+    Navigate the rover to a (x, y) waypoint using proportional control.
 
     Subscribes to filtered odometry, publishes velocity commands, and
     exposes a ``/goto_waypoint`` service.
@@ -47,6 +48,7 @@ class SimpleWaypointNav(Node):
         Maximum forward speed in m/s (default 0.2).
     angular_speed : float
         Maximum rotational speed in rad/s (default 0.5).
+
     """
 
     def __init__(self) -> None:
@@ -86,7 +88,8 @@ class SimpleWaypointNav(Node):
     def _goto_waypoint_callback(
         self, request: GotoWaypoint.Request, response: GotoWaypoint.Response
     ) -> GotoWaypoint.Response:
-        """Handle incoming /goto_waypoint service requests.
+        """
+        Handle incoming /goto_waypoint service requests.
 
         Parameters
         ----------
@@ -94,6 +97,7 @@ class SimpleWaypointNav(Node):
             Service request containing target x and y coordinates.
         response:
             Service response indicating success and a status message.
+
         """
         self.set_goal(request.x, request.y)
         response.success = True
@@ -115,7 +119,8 @@ class SimpleWaypointNav(Node):
             self._navigate_to_goal()
 
     def set_goal(self, x: float, y: float) -> None:
-        """Set a new navigation goal.
+        """
+        Set a new navigation goal.
 
         Parameters
         ----------
@@ -123,6 +128,7 @@ class SimpleWaypointNav(Node):
             Target x-coordinate in the odom frame (metres).
         y:
             Target y-coordinate in the odom frame (metres).
+
         """
         self._goal_x = x
         self._goal_y = y

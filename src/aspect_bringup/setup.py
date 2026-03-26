@@ -13,9 +13,10 @@
 # limitations under the License.
 """Setup configuration for aspect_bringup package."""
 
-from setuptools import setup
-import os
 from glob import glob
+import os
+
+from setuptools import setup
 
 
 package_name = 'aspect_bringup'

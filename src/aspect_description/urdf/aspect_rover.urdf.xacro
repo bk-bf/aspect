@@ -46,9 +46,10 @@
     </collision>
     <inertial>
       <mass value="${chassis_mass}"/>
-      <inertia ixx="0.0001" ixy="0.0" ixz="0.0"
-               iyy="0.0001" iyz="0.0"
-               izz="0.0001"/>
+      <!-- Box inertia: ixx=m(y²+z²)/12, iyy=m(x²+z²)/12, izz=m(x²+y²)/12 -->
+      <inertia ixx="0.000273" ixy="0.0" ixz="0.0"
+               iyy="0.000482" iyz="0.0"
+               izz="0.000542"/>
     </inertial>
   </link>
 
@@ -73,9 +74,10 @@
       </collision>
       <inertial>
         <mass value="${wheel_mass}"/>
-        <inertia ixx="0.000005" ixy="0.0" ixz="0.0"
-                 iyy="0.000005" iyz="0.0"
-                 izz="0.000009"/>
+        <!-- Cylinder inertia: ixx=iyy=m(3r²+h²)/12, izz=mr²/2 -->
+        <inertia ixx="0.0000030" ixy="0.0" ixz="0.0"
+                 iyy="0.0000030" iyz="0.0"
+                 izz="0.0000050"/>
       </inertial>
     </link>
 

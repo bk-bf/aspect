@@ -20,6 +20,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-robot-state-publisher \
     ros-jazzy-xacro \
     ros-jazzy-rviz2 \
+    ros-jazzy-topic-tools \
+    ros-jazzy-robot-localization \
+    xvfb \
     curl \
     git \
     wget \
