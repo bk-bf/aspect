@@ -6,12 +6,13 @@
 
 set -eo pipefail   # no -u: colcon's generated setup.bash uses unbound vars
 
-# Guard: must run inside the container where ROS 2 is installed
+# If not inside the container, re-exec via docker compose
 if [[ ! -f /opt/ros/jazzy/setup.bash ]]; then
-    echo "ERROR: ROS 2 Jazzy not found. Run this script inside the container:"
-    echo "  docker compose -f .docker/docker-compose.yml exec aspect_dev bash"
-    echo "  # or: rocker --x11 --nvidia --user --volume \$(pwd):/workspace aspect:jazzy"
-    exit 1
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    echo "Not inside container — re-launching via docker compose..."
+    docker compose -f "$SCRIPT_DIR/.docker/docker-compose.yml" \
+        run --rm -w /workspace aspect_dev bash /workspace/test.sh "$@"
+    exit $?
 fi
 
 # ── colours ──────────────────────────────────────────────────────────────────
