@@ -1,9 +1,18 @@
-<!-- LOC cap: 220 (source: 1100, ratio: 0.20, updated: 2026-03-26) -->
+<!-- LOC cap: 160 (source: 800, ratio: 0.20, updated: 2026-03-26) -->
 # AGENTS.md — ASPECT Rover Codebase Guide
 
 **Stack:** ROS 2 Jazzy · Gazebo Harmonic · Python · C++ · Docker · uv  
 **Overview / architecture:** `.docs/ASPECT.md` · `.docs/ARCHITECTURE.md`  
 **Parent deployment docs:** `../.docs/` (ARCHITECTURE, PHILOSOPHY, DECISIONS, ROADMAP)
+
+## Self-Maintenance Rules
+
+Keep this file ≤ LOC cap. After any meaningful session:
+- Commands changed? Update them here.
+- New quirk discovered? Add a one-liner; prose rationale → `.docs/`.
+- Quirk resolved or already in BUGS.md? Remove it from here.
+- Section grown verbose? Extract to `.docs/` and replace with a backlink.
+- Update the `<!-- LOC cap -->` date after each edit.
 
 ---
 
@@ -89,16 +98,7 @@ gz service -s /world/lunar_south_pole/control \
 # Without this: /clock silent, EKF logs "Waiting for clock..."
 ```
 
-**3. `/clock` bridge lazy** — give it 2–3 s after launch before `ros2 topic echo /clock`.
-
-**4. `cmd_vel` routing** — bridge maps `/model/aspect_rover/cmd_vel` → ROS `/cmd_vel`.
-If bridge logs the pass but rover doesn't move: check sim is unpaused (Quirk 2).
-
-**5. dartsim crash** — fixed: spawn z=0.05 m, corrected inertias, flat ground_plane added.
-See `.docs/bugs/BUGS.md` (B-009–B-013) and `.docs/DECISIONS.md` (D-011) for details.
-
-**6. LSP false positives** — host has no ROS 2 overlay; `rclpy`, `geometry_msgs`, `launch`,
-`ament_*`, `xacro` imports show as unresolved. **Safe to ignore — do not add `# noqa`.**
+**3. `/clock` bridge lazy** — see B-011 in `.docs/bugs/BUGS.md`; allow ~30 s warmup.
 
 ---
 
@@ -110,39 +110,7 @@ See `.docs/bugs/BUGS.md` (B-009–B-013) and `.docs/DECISIONS.md` (D-011) for de
 - Topics/services: `/snake_case`. Node names: `snake_case`.
 - Type annotations on all new nodes. Use `list | None` (3.10+), not `Optional`.
 - Logging: `self.get_logger().error/warn/info(...)` — never `print()`.
-
-```python
-"""One-line module docstring."""
-import rclpy
-from rclpy.node import Node
-
-
-class MyNode(Node):
-    """Node docstring."""
-
-    def __init__(self) -> None:
-        """Initialise node."""
-        super().__init__('my_node')
-
-
-def main(args: list | None = None) -> None:
-    """Entry point."""
-    rclpy.init(args=args)
-    node = MyNode()
-    try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        node.destroy_node()
-        rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
-```
-
-Full node template: `aspect_control/aspect_control/teleop_node.py`.
+- Node template: `aspect_control/aspect_control/teleop_node.py`.
 
 ## Code Style — C++ / URDF / SDF
 
@@ -162,43 +130,15 @@ Full node template: `aspect_control/aspect_control/teleop_node.py`.
 
 ## Git Workflow
 
-**Commit and push via SSH after every meaningful change.**
-
 ```bash
-git add .
-git commit -m "feat: <description>"
-git push origin main          # remote: git@github.com:bk-bf/aspect_rover.git
-ssh -T git@github.com         # verify: "Hi bk-bf!..."
+git add . && git commit -m "feat: <description>" && git push origin main
+ssh -T git@github.com   # verify SSH: "Hi bk-bf!..."
 ```
 
 Prefixes: `feat:` `fix:` `docs:` `refactor:` `test:` `chore:` `wip:`  
-Branches: `feature/<name>` or `fix/<name>`. License: Apache 2.0.
+Commit and push via SSH after every meaningful change.
 
 ---
-
-## AGENTS.md Self-Maintenance
-
-**Agents must keep this file ≤ 200 lines.** After any meaningful session:
-
-- Update commands if they change (launch args, bridge topics, unpause syntax).
-- Add new Gazebo quirks as one-liner notes; move prose rationale to `.docs/`.
-- Move resolved tech debt out; add new debt to `.docs/bugs/BUGS.md` with a backlink here.
-- Trim any section that has grown verbose — extract to `.docs/` and replace with a backlink.
-- Update the `<!-- LOC cap -->` date at the top after each edit.
-
-**Do not** let prose rationale accumulate here. This file is for commands and rules agents
-need inline. Everything else belongs in `.docs/`.
-
-## Known Technical Debt
-
-See `.docs/bugs/BUGS.md` for full list. Open items:
-
-| Item | Location |
-|---|---|
-| Copyright headers absent | All source files (linter check skipped) |
-| cpplint disabled | `aspect_gazebo/CMakeLists.txt` |
-| URDF box geometry only | `aspect_description/urdf/aspect_rover.urdf.xacro` |
-| Joy input not yet added | `aspect_control/teleop_node.py` |
 
 ## Dependencies
 
