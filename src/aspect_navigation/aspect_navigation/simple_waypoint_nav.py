@@ -15,6 +15,7 @@
 
 import math
 
+from aspect_msgs.srv import GotoWaypoint
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 import rclpy
@@ -25,7 +26,7 @@ class SimpleWaypointNav(Node):
     """Navigate the rover to a (x, y) waypoint using proportional control.
 
     Subscribes to filtered odometry, publishes velocity commands, and
-    exposes a ``/goto_waypoint`` service (TODO: implement service server).
+    exposes a ``/goto_waypoint`` service.
 
     Topics
     ------
@@ -33,6 +34,10 @@ class SimpleWaypointNav(Node):
         /odometry/filtered (nav_msgs/Odometry) — current pose from EKF
     Publishers:
         /cmd_vel (geometry_msgs/Twist) — velocity commands
+
+    Services
+    --------
+        /goto_waypoint (aspect_msgs/GotoWaypoint) — set a navigation goal
 
     Parameters
     ----------
@@ -45,7 +50,7 @@ class SimpleWaypointNav(Node):
     """
 
     def __init__(self) -> None:
-        """Initialise waypoint nav node, subscribers, and publisher."""
+        """Initialise waypoint nav node, subscribers, publisher, and service."""
         super().__init__('simple_waypoint_nav')
 
         self.declare_parameter('acceptance_radius', 0.5)
@@ -72,8 +77,28 @@ class SimpleWaypointNav(Node):
             Odometry, '/odometry/filtered', self._odom_callback, 10
         )
         self._cmd_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self._goto_srv = self.create_service(
+            GotoWaypoint, '/goto_waypoint', self._goto_waypoint_callback
+        )
 
-        self.get_logger().info('SimpleWaypointNav started')
+        self.get_logger().info('SimpleWaypointNav started — /goto_waypoint service ready')
+
+    def _goto_waypoint_callback(
+        self, request: GotoWaypoint.Request, response: GotoWaypoint.Response
+    ) -> GotoWaypoint.Response:
+        """Handle incoming /goto_waypoint service requests.
+
+        Parameters
+        ----------
+        request:
+            Service request containing target x and y coordinates.
+        response:
+            Service response indicating success and a status message.
+        """
+        self.set_goal(request.x, request.y)
+        response.success = True
+        response.message = f'Goal set to ({request.x:.2f}, {request.y:.2f})'
+        return response
 
     def _odom_callback(self, msg: Odometry) -> None:
         """Handle incoming odometry messages and update position."""
@@ -105,6 +130,7 @@ class SimpleWaypointNav(Node):
 
     def _navigate_to_goal(self) -> None:
         """Compute and publish velocity toward the current goal."""
+        assert self._goal_x is not None and self._goal_y is not None
         dx = self._goal_x - self._current_x
         dy = self._goal_y - self._current_y
         distance = math.hypot(dx, dy)
