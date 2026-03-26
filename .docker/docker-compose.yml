@@ -1,0 +1,29 @@
+services:
+  aspect_dev:
+    build:
+      context: ..
+      dockerfile: .docker/Dockerfile
+    image: aspect:jazzy
+    container_name: aspect_dev
+    volumes:
+      # Mount the entire workspace so colcon build output persists on host
+      - ..:/workspace
+      # X11 socket for GUI tools (Gazebo, RViz2) — used by rocker automatically
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      # Wayland passthrough (CachyOS/Sway users)
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-}
+      - XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/tmp}
+    network_mode: host
+    stdin_open: true
+    tty: true
+    command: /bin/bash
+
+# Usage:
+#   docker compose -f .docker/docker-compose.yml up -d
+#   docker compose -f .docker/docker-compose.yml exec aspect_dev bash
+#
+# For GUI support, prefer rocker over plain docker compose:
+#   rocker --x11 --nvidia --user --volume $(pwd):/workspace aspect:jazzy

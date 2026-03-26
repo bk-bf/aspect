@@ -1,19 +1,46 @@
 <?xml version="1.0" ?>
-<sdf version="1.4">
-  <world name="default">
-    <include>
-        <uri>https://fuel.ignitionrobotics.org/1.0/OpenRobotics/models/Sun</uri>
-    </include>
-    
+<!--
+  Lunar South Pole heightmap world for Gazebo Harmonic (SDF 1.9).
+
+  Heightmap source: NASA LRO LOLA DEM, cropped 513x513 px around south pole.
+  Real-world dimensions: 40km x 40km, elevation range ~7094m.
+
+  The heightmap URI uses the GZ_SIM_RESOURCE_PATH environment variable so
+  that absolute paths are never hardcoded. Set the variable to the installed
+  package share path before launching:
+
+    export GZ_SIM_RESOURCE_PATH=$(ros2 pkg prefix aspect_gazebo)/share/aspect_gazebo
+
+  The .docker/Dockerfile sets this automatically inside the container.
+-->
+<sdf version="1.9">
+  <world name="lunar_south_pole">
+
+    <!-- Lighting: dim sun angle approximating lunar south pole conditions -->
+    <light name="sun" type="directional">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 100 0 0.35 0.35</pose>
+      <diffuse>0.7 0.7 0.65 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+
+    <!-- Physics: lunar gravity -->
+    <gravity>0 0 -1.62</gravity>
+
     <model name="heightmap">
       <static>true</static>
       <link name="link">
+
         <collision name="collision">
           <geometry>
             <heightmap>
-              <!-- absolute paths are very cringe but at least it works right?) -->
-              <uri>/home/kirill/Documents/vs_code_ws/aspect_rover/src/aspect_gazebo/media/dem/lunar_dem_southpole_test.png</uri>
-              <!-- size: real-world dimensions (width_meters, length_meters, height_meters) -->
+              <!--
+                URI resolved via GZ_SIM_RESOURCE_PATH.
+                Path relative to aspect_gazebo package share directory.
+              -->
+              <uri>model://media/dem/lunar_dem_southpole_test.png</uri>
+              <!-- size: real-world extent (x_metres y_metres z_range_metres) -->
               <size>40000 40000 7094</size>
               <pos>0 0 0</pos>
               <sampling>2</sampling>
@@ -24,14 +51,16 @@
         <visual name="visual_lunar">
           <geometry>
             <heightmap>
-              <uri>/home/kirill/Documents/vs_code_ws/aspect_rover/src/aspect_gazebo/media/dem/lunar_dem_southpole_test.png</uri>
+              <uri>model://media/dem/lunar_dem_southpole_test.png</uri>
               <size>40000 40000 7094</size>
               <pos>0 0 0</pos>
               <sampling>2</sampling>
             </heightmap>
           </geometry>
         </visual>
+
       </link>
     </model>
+
   </world>
 </sdf>

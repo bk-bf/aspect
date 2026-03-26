@@ -1,123 +1,196 @@
-# ASPECT (Autonomous Surface Precision Excavation for Celestial Terrain)
+# ASPECT — Autonomous Surface Precision Excavation for Celestial Terrain
+<!-- LOC cap: 156 (source: 780, ratio: 0.20, updated: 2026-03-26) -->
 
-A ROS 2 Humble + Gazebo simulation and physical prototype of a lunar mining rover designed for in-situ resource utilization (ISRU) on the Moon, with progressive testing from simulation to extreme Earth environments.
+A ROS 2 Jazzy + Gazebo Harmonic simulation and 1:10 scale physical prototype of a
+lunar mining rover for in-situ resource utilization (ISRU). Target: autonomous
+regolith excavation ≥5 g/min at <50 W.
 
-## Project Goals
+**Stack:** ROS 2 Jazzy Jalisco (LTS May 2029) · Gazebo Harmonic · Docker · uv  
+**Phase:** 0 — Infrastructure & simulation foundation (2026)  
+**Roadmap:** [`.docs/features/open/ROADMAP.md`](.docs/features/open/ROADMAP.md)  
+**Architecture:** [`.docs/ARCHITECTURE.md`](.docs/ARCHITECTURE.md)
 
-This project aims to:
+---
 
-- Create a simulation-to-hardware pipeline for lunar regolith excavation using ROS 2 Humble and Gazebo lunar terrain modeling
-- Develop and validate a 1:10 scale rover prototype capable of excavating ≥5g/min of lunar regolith analog at <50W power consumption
-- Test rover capabilities progressively through simulation, backyard tests, Arctic environment (Svalbard), and eventually Atacama Desert conditions
-- Advance technology readiness level from TRL-3 to TRL-6 by 2028
-- Establish technical foundations for future lunar hydrogen production capabilities (target: 10t/yr by 2032)
-- Align development with NASA ISRU Strategic Plan and ESA Analog Handbook standards
-
-## System Architecture
-
-- **Simulation Environment**: ROS 2 Humble + Gazebo Fortress and standard heightmaps implementation for lunar terrain modeling
-- **Hardware Platform**: 
-  - 1:10 scale rover chassis (3D printed in PETG/PLA+)
-  - Motors: SG90 servos/Faulhaber 1524 motors
-  - Computing: Raspberry Pi + GY-521 IMU
-  - Vision: ESP32-CAM with OpenCV edge detection
-  - Based on modified NASA Open-Source Rover design
-
-## Development Roadmap
-
-### 2025 Q1-Q2: Simulation Foundation
-
-- ROS 2 Humble + Gazebo Fortress environment setup with heightmaps implementation for lunar terrain modeling
-- Development of lunar regolith excavation simulation model
-- Creation of Harvesting Algorithm v0.5 for autonomous operation
-- Simulation benchmarks: Virtual excavation rate ≥5g/min at <50W power consumption
-- Data collection framework for performance metrics and optimization
-
-### 2025 Q3-Q4: Hardware Prototyping \& Initial Testing
-
-- Simulation-to-hardware transition as funding permits
-- 1:10 scale prototype development using cost-effective components
-- Backyard testing with volcanic ash (regolith analog)
-- Integration of perception systems (ESP32-CAM with OpenCV)
-- Benchmark: Process 50g volcanic ash in controlled environment
-
-### 2026 Q1-Q2: Field Testing \& Environmental Validation
-
-- Arctic testing at Svalbard (72h continuous operation)
-- Sensor fusion implementation
-- Target: 5kg/30min excavation benchmark
-- TRL-3 validation through environmental testing
-
-### 2026 Q3-Q4 and Beyond
-
-- Atacama Desert field trials
-- Electrostatic regolith separation testing
-- Progressive scaling of prototype capabilities
-- Collaboration with research institutions for advanced testing
-- Scaling for eventual lunar deployment
-
-## Dependencies
-
-- ROS 2 Humble
-- Gazebo Fortress
-- Standard heightmaps implementation for lunar terrain modeling
-- OpenCV
-- Navigation2 stack
-
-## Installation
+## Quick Start (10 minutes)
 
 ### Prerequisites
 
-Install ROS 2 Humble
-Follow instructions at: https://docs.ros.org/en/humble/Installation.html
+- Docker Engine ([install](https://docs.docker.com/engine/install/))
+- `rocker` — official OSRF GUI wrapper: `uv tool install rocker` (or `pip install rocker`)
+- Linux with X11 or Wayland (tested: Ubuntu 24.04, CachyOS/Arch)
 
-Install Gazebo Fortress
+> **Why uv?** All Python tooling in this project uses [uv](https://docs.astral.sh/uv/)
+> instead of `pip` / `python` directly. Install it once:
+> ```bash
+> curl -LsSf https://astral.sh/uv/install.sh | sh
+> ```
+
+### Build the Docker image
+
 ```bash
-sudo apt-get update
-sudo apt-get install lsb-release gnupg
-```
-```bash
-sudo curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
-sudo apt-get update
-sudo apt-get install ignition-fortress
+git clone https://github.com/bk-bf/aspect
+cd aspect
+
+# Build image (first time: ~10 minutes)
+docker build -f .docker/Dockerfile -t aspect:jazzy .
 ```
 
-### Building the Project
+### Launch the simulation (with GUI)
 
-Create a workspace
 ```bash
-mkdir -p ~/aspect_ws/src
-cd ~/aspect_ws/src
-```
-Clone this repository
-```bash
-git clone https://github.com/bk-bf/aspect_ros2_gazebo.git
-```
-Install dependencies
-```bash
-cd ~/aspect_ws
-rosdep update
-rosdep install --from-paths src --ignore-src -r -y
-```
-Build the workspace
-```bash
-colcon build
-source install/setup.bash
-```
-## Usage
+# rocker handles X11/Wayland forwarding and NVIDIA GPU passthrough automatically
+rocker --x11 --nvidia --user --volume $(pwd):/workspace aspect:jazzy
 
-Launch the lunar rover simulation:
-```bash
-ros2 launch aspect_bringup lunar_sim.launch.py
+# Inside the container — build and launch
+colcon build && source install/setup.bash
+ros2 launch aspect_bringup launch_lunar_south_pole.py
 ```
+
+Gazebo Harmonic opens with the lunar south pole heightmap terrain.
+
+### Alternative: docker compose (headless / no GUI)
+
+```bash
+docker compose -f .docker/docker-compose.yml up -d
+docker compose -f .docker/docker-compose.yml exec aspect_dev bash
+```
+
+---
+
 ## Project Structure
 
-- `aspect_description/`: URDF model files for the rover
-- `aspect_gazebo/`: Gazebo-specific configuration and lunar world files
-- `aspect_control/`: Control algorithms for regolith excavation
-- `aspect_navigation/`: Navigation and path planning for lunar terrain
-- `aspect_bringup/`: Launch files and configuration
+```
+aspect/
+├── .docker/
+│   ├── Dockerfile            # ROS 2 Jazzy + Gazebo Harmonic + uv
+│   ├── docker-compose.yml    # Container orchestration
+│   └── entrypoint.sh         # Sources ROS 2 overlay on container start
+├── .docs/                    # Planning & architecture documents (Obsidian vault)
+│   ├── ASPECT.md
+│   ├── Development-Architecture-Proposal.md
+│   ├── Execution-Roadmap-2026-2033.md
+│   ├── Feasibility-Analysis-2026.md
+│   └── Tasks/
+│       ├── Yearly/
+│       ├── Monthly/
+│       └── Weekly/
+├── AGENTS.md                 # Guide for AI coding agents
+└── src/
+    ├── aspect_bringup/       # Launch files
+    ├── aspect_description/   # URDF/xacro rover model
+    ├── aspect_control/       # Teleoperation node
+    ├── aspect_navigation/    # Waypoint navigation node
+    └── aspect_gazebo/        # Gazebo worlds & DEM heightmap media
+```
+
+---
+
+## Build & Test
+
+All commands run inside the Docker container (after `rocker` / `docker compose exec`).
+
+```bash
+# Build entire workspace
+colcon build
+
+# Build a single package
+colcon build --packages-select aspect_bringup
+
+# Source the install overlay
+source install/setup.bash
+
+# Run all tests
+colcon test && colcon test-result --verbose
+
+# Run tests for one package
+colcon test --packages-select aspect_navigation
+
+# Run a single test file directly (uv manages the pytest invocation)
+uv run pytest src/aspect_navigation/test/test_flake8.py -v
+
+# Run linters directly via uv
+uv tool run flake8 src/aspect_control/aspect_control/
+```
+
+---
+
+## Packages
+
+| Package | Type | Status | Description |
+|---|---|---|---|
+| `aspect_bringup` | `ament_python` | Active | Launch files |
+| `aspect_description` | `ament_cmake` | Active | URDF/xacro rover model (box geometry stub) |
+| `aspect_control` | `ament_python` | Active | Teleoperation (`/cmd_vel`); keyboard input pending |
+| `aspect_navigation` | `ament_python` | Active | Waypoint nav (`/odometry/filtered` → `/cmd_vel`); `/goto_waypoint` service pending |
+| `aspect_gazebo` | `ament_cmake` | Active | Simulation worlds & DEM media |
+
+---
+
+## Hardware Platform (1:10 scale prototype)
+
+| Component | Part |
+|---|---|
+| Chassis | 3D printed PETG/PLA+, ~15 × 10 × 8 cm |
+| Computing | Raspberry Pi 4B+ |
+| IMU | GY-521 (MPU-6050) |
+| Vision | ESP32-CAM with OpenCV |
+| Motors | SG90 servos / Faulhaber 1524 |
+| Design base | NASA Open Source Rover (scaled 1:10) |
+
+---
+
+## Development Workflow
+
+### Daily development (laptop)
+
+```bash
+# Enter container with GUI
+rocker --x11 --user --volume $(pwd):/workspace aspect:jazzy
+
+# Build, test, iterate
+colcon build --symlink-install
+source install/setup.bash
+ros2 launch aspect_bringup launch_lunar_south_pole.py
+```
+
+### Cloud GPU (Phase 2+)
+
+```bash
+# Same image, no GUI needed — for RL training when implemented
+docker run --gpus all aspect:jazzy bash
+```
+
+---
+
+## World File Resource Path
+
+The lunar heightmap SDF uses `model://` URIs resolved via `GZ_SIM_RESOURCE_PATH`.
+The Dockerfile sets this automatically:
+
+```
+GZ_SIM_RESOURCE_PATH=/workspace/install/aspect_gazebo/share/aspect_gazebo
+```
+
+If launching outside Docker, export it manually:
+
+```bash
+export GZ_SIM_RESOURCE_PATH=$(ros2 pkg prefix aspect_gazebo)/share/aspect_gazebo
+```
+
+---
+
+## Dependencies
+
+```bash
+# Inside the container
+rosdep install --from-paths src --ignore-src -r -y
+```
+
+Key runtime: `rclpy`, `launch`, `launch_ros`, `ros_gz`, `robot_localization`  
+Key dev: `ament_flake8`, `ament_pep257`, `ament_lint_auto`, `uv`
+
+---
 
 ## Partners & Acknowledgments
 
@@ -125,8 +198,8 @@ ros2 launch aspect_bringup lunar_sim.launch.py
 - Contributors to the ros_gz packages
 - ESA/NASA ISRU Strategic Plans
 
+---
+
 ## License
 
-This project is licensed under the Apache 2.0 License - see the LICENSE file for details.
-
-
+Apache 2.0 — see [LICENSE](LICENSE).

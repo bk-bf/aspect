@@ -12,6 +12,10 @@ __pycache__/
 *.so
 .Python
 
+# uv
+.venv/
+.uv/
+
 # Eclipse IDE
 .project
 .cproject

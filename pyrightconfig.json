@@ -1,0 +1,12 @@
+{
+  "include": ["src"],
+  "exclude": ["aspect_rover"],
+  "defineConstant": {},
+  "pythonVersion": "3.10",
+  "typeCheckingMode": "basic",
+  // ROS 2 packages (ament_*, launch, launch_ros, rclpy, xacro, etc.) only
+  // exist inside the Docker container. Suppress missing-import errors for
+  // them so the host-side LSP stays clean.
+  "reportMissingImports": false,
+  "reportMissingModuleSource": false
+}

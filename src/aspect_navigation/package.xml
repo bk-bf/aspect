@@ -1,20 +1,15 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>aspect_bringup</name>
+  <name>aspect_navigation</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>Waypoint navigation nodes for the ASPECT lunar rover</description>
   <maintainer email="boychenkokirill@gmail.com">kirill</maintainer>
-  <license>TODO: License declaration</license>
+  <license>Apache-2.0</license>
 
-  <exec_depend>aspect_description</exec_depend>
-  <exec_depend>aspect_gazebo</exec_depend>
-  <exec_depend>robot_state_publisher</exec_depend>
-  <exec_depend>ros_gz_sim</exec_depend>
-  <exec_depend>ros_gz_bridge</exec_depend>
-  <exec_depend>topic_tools</exec_depend>
-  <exec_depend>robot_localization</exec_depend>
-  <exec_depend>xacro</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
