@@ -14,7 +14,7 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 > Blocks everything in Phase 1.
 
 - [x] T-007 [`aspect_bringup`]: Wire up `ros_gz_bridge` for `/cmd_vel` and `/odometry/filtered`
-- [x] T-008 [`aspect_gazebo`]: Add differential drive plugin to `lunar_south_pole.world`
+- [x] T-008 [`aspect_gazebo`]: Add differential drive plugin to `lunar_south_pole.world` *(note: NASA DEM heightmap is visual-only — dartsim skips heightmap collision; rover drives on a flat `ground_plane` at z=0)*
 - [x] T-009 [`aspect_bringup`]: Spawn rover URDF model in simulation at launch
 - [x] T-006 [`aspect_bringup`]: Add `robot_localization` EKF node to bringup launch
 
@@ -38,7 +38,7 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 - [ ] T-101 [`aspect_navigation`]: Nav2 stack integration (costmap, global + local planner)
 - [ ] T-102 [`aspect_description`]: Excavation scoop URDF + articulation joint
 - [ ] T-103 [`aspect_gazebo`]: gymnasium environment wrapping Gazebo sim
-- [ ] T-104: Baseline PPO training (SB3 Zoo defaults)
+- [ ] T-104: Baseline PPO training — SB3 Zoo defaults *(CPU-only proof-of-concept; goal is to validate gym env + reward function before GPU spend — see D-012)*
 - [ ] T-105: Lunar terrain Nav2 parameter tuning
 - [ ] T-106 [`aspect_bringup`]: Sensor fusion — wheel odometry + IMU via EKF validated in sim
 - [ ] T-107: 30-minute stability test passing in CI

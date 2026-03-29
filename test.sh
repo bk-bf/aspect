@@ -52,7 +52,7 @@ if colcon test \
         --event-handlers console_cohesion+ \
         2>&1 | tee /tmp/aspect_lint.log \
    && colcon test-result --verbose 2>&1 | tee -a /tmp/aspect_lint.log \
-   | grep -qE "^0 failures"; then
+   | grep -qE "0 errors, 0 failures"; then
     pass "T-L1: linter clean"
 else
     fail "T-L1: linter failures — check /tmp/aspect_lint.log"
@@ -128,15 +128,22 @@ info "Starting waypoint nav node..."
 ros2 launch aspect_navigation waypoint_nav.launch.py \
     > /tmp/aspect_nav.log 2>&1 &
 NAV_PID=$!
-sleep 5
 
-SVC_RESULT=$(ros2 service call /goto_waypoint aspect_msgs/srv/GotoWaypoint \
+# Wait up to 15 s for the service to become available
+info "Waiting for /goto_waypoint service..."
+for i in $(seq 1 15); do
+    ros2 service list 2>/dev/null | grep -qx '/goto_waypoint' && break
+    sleep 1
+done
+
+SVC_RESULT=$(timeout 10 ros2 service call /goto_waypoint aspect_msgs/srv/GotoWaypoint \
     "{x: 2.0, y: 0.0}" 2>/dev/null || true)
-CMD=$(ros2 topic echo /cmd_vel --once --no-daemon 2>/dev/null || true)
+sleep 2
+CMD=$(timeout 5 ros2 topic echo /cmd_vel --once --no-daemon 2>/dev/null || true)
 
 kill "$NAV_PID" 2>/dev/null || true
 
-if echo "$SVC_RESULT" | grep -q "success: True"; then
+if echo "$SVC_RESULT" | grep -qE "success[=:] ?True"; then
     pass "T-D2: service returned success=True"
 else
     fail "T-D2: service did not return success=True (got: $(echo "$SVC_RESULT" | tr '\n' ' '))"

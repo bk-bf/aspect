@@ -98,8 +98,8 @@ Pass: `w` → forward velocity on `/cmd_vel`; `space` → zeros; `q` → clean e
 |---|---|---|---|
 | Prerequisites (build) | 2026-03-26 | PASS | 6 packages, 0 errors |
 | T-L1 linter | 2026-03-26 | PASS | 9 tests, 0 failures, 1 skipped (copyright) |
-| T-S1 topic smoke | 2026-03-26 | PASS | 10 topics confirmed |
-| T-D1 manual drive | 2026-03-26 | PASS | x=0.508m after 5s at 0.2m/s |
+| T-S1 topic smoke | 2026-03-26 | PASS | 5 topics confirmed |
+| T-D1 manual drive | 2026-03-26 | PASS | x=0.659m after 5s at 0.2m/s |
 | T-D2 waypoint service | 2026-03-26 | PASS | `success=True`; cmd_vel linear.x=0.2 |
 | T-D3 keyboard teleop | — | SKIP | Requires interactive TTY; not automatable |
 
@@ -112,6 +112,10 @@ Pass: `w` → forward velocity on `/cmd_vel`; `space` → zeros; `q` → clean e
 | Physics crash (dartsim ODE assert) | Added flat ground plane; corrected box/cylinder inertia |
 | Sim starts paused in server-only mode | Document `gz service` unpause step above |
 | `aspect_bringup/setup.py` import order | Fixed: `from glob import glob` before `import os` |
+| T-L1 grep pattern wrong | `colcon test-result` emits `"Summary: …0 errors, 0 failures…"`; fixed pattern |
+| T-D2 service grep wrong | `ros2 service call` prints `success=True` (repr); fixed to `success[=:] ?True` |
+| T-D2 service call hung | No timeout on `ros2 service call`; added `timeout 10` + service-ready poll |
+| T-D2 cmd_vel race | Topic echo ran before nav node reacted; added `sleep 2` after service call |
 
 ---
 
