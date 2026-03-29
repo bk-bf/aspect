@@ -38,7 +38,7 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 - [ ] T-101 [`aspect_navigation`]: Nav2 stack integration (costmap, global + local planner)
 - [ ] T-102 [`aspect_description`]: Excavation scoop URDF + articulation joint
 - [ ] T-103 [`aspect_gazebo`]: gymnasium environment wrapping Gazebo sim
-- [ ] T-104: Baseline PPO training — SB3 Zoo defaults *(CPU-only proof-of-concept; goal is to validate gym env + reward function before GPU spend — see D-012)*
+- [ ] T-104: Baseline PPO training — SB3 Zoo defaults *(CPU-only proof-of-concept; goal is to validate gym env + reward function before GPU spend — see D-008)*
 - [ ] T-105: Lunar terrain Nav2 parameter tuning
 - [ ] T-106 [`aspect_bringup`]: Sensor fusion — wheel odometry + IMU via EKF validated in sim
 - [ ] T-107: 30-minute stability test passing in CI

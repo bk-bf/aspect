@@ -111,20 +111,38 @@ documentation. Not needed until Phase 2 — no RL code in the repo yet.
 
 ---
 
-## D-008 — Cloud GPU over local GPU for RL training
+## D-008 — GPU compute strategy for RL training
 
-**Date:** 2026-02-15  
+**Date:** 2026-02-15 (revised 2026-03-29)  
 **Status:** Planned (Phase 2+)
 
-**Decision:** Rent cloud GPU (Vast.ai RTX 4090 at ~$0.25/hr, or RunPod A4000 at
-~$0.17/hr) rather than purchasing dedicated hardware.
+**Decision:** Rent cloud GPU rather than purchasing hardware. Do not activate paid
+compute until all three gates are met:
+1. T-104 CPU proof-of-concept complete — gym env and reward function validated locally
+2. T-206 checkpoint auto-save to HF Hub working — no training run can be lost
+3. A single 1-hour test run on Vast.ai confirms the Docker image trains correctly
+   before committing to a full hyperparameter search budget
 
-**Rationale:** Realistic annual budget ~$235 (930 GPU hours). Purchasing an RTX 4090
-costs ~$1,600 — 7× more expensive for Phase 2-3 workloads. Cloud instances are
-preemptible with hourly checkpointing. Budget alerts at $100/$200/$300.
+**Evaluation order (cheapest → most capable):**
 
-**Rejected:** Buying RTX 4090 — cost-inefficient for hobby project GPU hours; using
-the TX2540m1 server CPU — viable fallback but too slow for production RL training.
+| Option | Cost | Notes |
+|---|---|---|
+| Kaggle / Colab free tier | $0 | Max 12 hr/session — sufficient for T-104 CPU PoC |
+| University HPC (borrowed) | $0 | Check availability first; good if accessible within 1 week |
+| Vast.ai RTX 4090 spot | ~$0.25/hr | Preferred for T-207; preemptible, hourly checkpoint required |
+| RunPod A4000 on-demand | ~$0.17/hr | Fallback if Vast.ai spot unavailable; slightly slower |
+| Buy RTX 4090 | ~$1,600 | Rejected — see below |
+
+**Budget gate:** Phase 2 GPU spend capped at $80; alert at $40 and $70.
+Do not start T-207 until the $80 budget is confirmed available.
+
+**Rationale:** Annual budget ~$235 (930 GPU hours). Purchasing an RTX 4090 costs
+~$1,600 — 7× more expensive for Phase 2-3 workloads. The free-tier path covers T-104,
+delaying real spend until the training pipeline is proven. Renting before T-206
+checkpoint save is working risks losing entire runs to preemption.
+
+**Rejected:** Buying RTX 4090 — cost-inefficient for hobby-scale GPU hours; using the
+TX2540m1 server CPU for production training — too slow for T-207 hyperparameter search.
 
 ---
 
@@ -150,40 +168,6 @@ For interactive GUI use, `rocker --x11` on the host is the documented workflow.
 
 **Rejected:** Running `gz sim` without `-s` in the container — GUI crash reproducibly
 kills the physics server; Xvfb virtual display does not satisfy OGRE's shader requirements.
-
----
-
-## D-012 — GPU compute: when to rent and what to evaluate
-
-**Date:** 2026-03-29  
-**Status:** Planned (pre-T-207, Phase 2)
-
-**Decision:** Do not rent cloud GPU until all three gates are met:
-1. T-104 CPU proof-of-concept complete — gym env and reward function validated locally
-2. T-206 checkpoint auto-save to HF Hub working — no training run can be lost
-3. A single 1-hour test run on Vast.ai confirms the Docker image trains correctly
-   before committing to a full hyperparameter search budget
-
-**Evaluation order (cheapest → most capable):**
-
-| Option | Cost | Notes |
-|---|---|---|
-| Kaggle / Colab free tier | $0 | Max 12 hr/session, no persistent storage — suitable for T-104 CPU PoC only |
-| University HPC (borrowed) | $0 | Check availability first; good if accessible within 1 week |
-| Vast.ai RTX 4090 spot | ~$0.25/hr | Preferred for T-207; preemptible, hourly checkpoint required |
-| RunPod A4000 on-demand | ~$0.17/hr | Fallback if Vast.ai spot unavailable; slightly slower |
-| Buy RTX 4090 | ~$1,600 | Rejected — see D-008 |
-
-**Budget gate:** total Phase 2 GPU spend capped at $80 (T-206); alert at $40 and $70.
-Do not start T-207 until the $80 budget is confirmed available.
-
-**Rationale:** D-008 decided cloud over purchase. This decision refines *when* to
-activate cloud GPU to avoid wasting budget on an unvalidated gym environment or losing
-checkpoints. The free-tier path (Kaggle/Colab) is sufficient for T-104 and delays
-real spend until the training pipeline is proven.
-
-**Rejected:** Renting GPU before T-206 checkpoint save is working — a preempted
-instance without checkpointing loses the entire run.
 
 ---
 
