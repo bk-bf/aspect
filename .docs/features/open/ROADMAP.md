@@ -28,13 +28,11 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 > - **Track B — nav2 foundation** (T-010): independent of Track A; touches different packages
 >
 > T-003/T-004 and T-010 can run in separate worktrees simultaneously.
-> T-005 deferred — box geometry sufficient until Phase 2 hardware design is finalised.
 
 - [x] T-001 [`aspect_control`]: Implement keyboard input in `teleop_node.py` (termios raw mode)
 - [x] T-002 [`aspect_navigation`]: Expose `/goto_waypoint` service in `simple_waypoint_nav.py`
 - [ ] T-003 [all]: Add Apache 2.0 copyright headers to all source files missing them
 - [ ] T-004 [all]: Re-enable `ament_copyright` linter check once T-003 is done
-- [ ] T-005 [`aspect_description`]: Replace box geometry URDF with real rover meshes
 - [ ] T-010 [`aspect_navigation`]: Add nav2 costmap + basic global planner
 
 ### Priority 3 — Phase 1: Simulation & AI (2026 Q2-Q3)
