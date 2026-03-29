@@ -37,8 +37,8 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 
 - [ ] T-101 [`aspect_navigation`]: Nav2 stack integration (costmap, global + local planner)
 - [ ] T-102 [`aspect_description`]: Excavation scoop URDF + articulation joint
-- [ ] T-103 [`aspect_gazebo`]: gymnasium environment wrapping Gazebo sim
-- [ ] T-104: Baseline PPO training — SB3 Zoo defaults *(CPU-only proof-of-concept; goal is to validate gym env + reward function before GPU spend — see D-008)*
+- [ ] T-103 [`aspect_gazebo`]: gymnasium environment wrapping Gazebo sim *(implements D-007 — gymnasium + SB3 framework choice)*
+- [ ] T-104: Baseline PPO training — SB3 Zoo defaults *(CPU-only proof-of-concept; goal is to validate gym env + reward function before GPU spend — see D-007, D-008)*
 - [ ] T-105: Lunar terrain Nav2 parameter tuning
 - [ ] T-106 [`aspect_bringup`]: Sensor fusion — wheel odometry + IMU via EKF validated in sim
 - [ ] T-107: 30-minute stability test passing in CI
@@ -53,8 +53,8 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 - [ ] T-203: Faulhaber 1524 / SG90 motor driver node
 - [ ] T-204: ESP32-CAM ROS 2 video stream
 - [ ] T-205: EKF fusion — wheel odometry + IMU on hardware
-- [ ] T-206: Cloud GPU migration (Vast.ai / RunPod); checkpoint auto-save to HF Hub
-- [ ] T-207: Hyperparameter search (SB3 Zoo ablations, 10 runs)
+- [ ] T-206: Cloud GPU migration (Vast.ai / RunPod); checkpoint auto-save to HF Hub *(executes D-008 gates 2–3; implements D-009 model storage)*
+- [ ] T-207: Hyperparameter search (SB3 Zoo ablations, 10 runs) *(blocked by D-008 budget gate — do not start until T-206 complete and $80 budget confirmed)*
 - [ ] T-208: Backyard excavation trial with regolith analog (≥ 5 g/min target)
 
 ### Priority 5 — Phase 3: Integrated ISRU Prototype (2027 Q2–2028 Q1)
