@@ -1,4 +1,4 @@
-<!-- LOC cap: 160 (source: 800, ratio: 0.20, updated: 2026-03-26) -->
+<!-- LOC cap: 165 (source: 825, ratio: 0.20, updated: 2026-03-29) -->
 # AGENTS.md — ASPECT Rover Codebase Guide
 
 **Stack:** ROS 2 Jazzy · Gazebo Harmonic · Python · C++ · Docker · uv  
@@ -24,15 +24,20 @@ ssh -T git@github.com   # verify SSH: "Hi bk-bf!..."
 Prefixes: `feat:` `fix:` `docs:` `refactor:` `test:` `chore:` `wip:`  
 Commit and push via SSH after every meaningful change.
 
-For any significant change (new feature, refactor, multi-file edit), create a worktree
-and work there instead of directly on `main`:
+**Always** create a worktree before starting any significant change — do not work
+directly on `main`. Significant = new package, behaviour change, anything that could
+break a passing build.
 
 ```bash
+# start
 git worktree add features/<feature> -b feature/<feature>
 # work in features/<feature>, then PR back to main
-```
 
-Significant = new package, behaviour change, anything that could break a passing build.
+# after PR merged to main
+git worktree remove features/<feature>
+git branch -d feature/<feature>
+git push origin --delete feature/<feature>
+```
 
 ---
 
@@ -145,8 +150,6 @@ gz service -s /world/lunar_south_pole/control \
 **ament_python:** `package.xml` build_type, test deps (`ament_flake8`, `ament_pep257`, `python3-pytest`), copy tests from `aspect_control`, `resource/<pkg>` marker, `setup.py` data_files.
 
 **ament_cmake:** CMake ≥ 3.8, `-Wall -Wextra -Wpedantic`, `ament_lint_auto` in `BUILD_TESTING`.
-
----
 
 ---
 
