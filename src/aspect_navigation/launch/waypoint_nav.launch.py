@@ -31,6 +31,7 @@ def generate_launch_description():
                         'acceptance_radius': 0.5,
                         'linear_speed': 0.2,
                         'angular_speed': 0.5,
+                        'use_sim_time': True,
                     }
                 ],
             ),
