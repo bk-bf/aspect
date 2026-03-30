@@ -41,11 +41,13 @@ Pass: flake8, pep257, copyright all green.
 
 ```bash
 ros2 launch aspect_bringup launch_lunar_south_pole.py
-# in a second shell:
+# in a second shell (wait ~15 s for bridge to advertise all topics):
 ros2 topic list
 ```
 
-Pass: all topics present.
+Pass: all topics present. Note: on fast hosts (VPS RTF ≥ 1×, clock ready in ~1 s)
+topic advertisements may lag a few seconds behind clock start — `test.sh` polls
+each topic individually (15 s timeout) to avoid this race.
 
 | Topic | Type |
 |---|---|
@@ -169,6 +171,7 @@ Pass: `w` → forward velocity on `/cmd_vel`; `space` → zeros; `q` → clean e
 | T-D2 service grep wrong | `ros2 service call` prints `success=True` (repr); fixed to `success[=:] ?True` |
 | T-D2 service call hung | No timeout on `ros2 service call`; added `timeout 10` + service-ready poll |
 | T-D2 cmd_vel race | Topic echo ran before nav node reacted; added `sleep 2` after service call |
+| T-S1 bridge startup race | On fast hosts clock advances in ~1 s; `ros2 topic list` snapshot ran before bridge advertised topics. Fix: `test.sh` polls each topic via `wait_for_topic` (15 s each) instead of one-shot snapshot (B-011, M-3) |
 
 ---
 

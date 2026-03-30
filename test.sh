@@ -123,6 +123,10 @@ $CLOCK_READY || info "WARNING: sim clock still 0 after 45 s — T-D1 may fail"
 sleep 2
 
 # ── T-S1 — Topic smoke test ───────────────────────────────────────────────────
+# Uses wait_for_topic per topic (15 s each) instead of a one-shot ros2 topic list.
+# Rationale: on fast hosts (VPS RTF ≥ 1.0) the clock may advance after ~1 s,
+# leaving ros_gz_bridge only 3 s to advertise all topics before T-S1 runs.
+# Polling eliminates the race without adding a fixed sleep. (ref: B-011, M-3)
 echo ""
 echo "=== T-S1: Topic smoke test ==="
 REQUIRED_TOPICS=(
@@ -132,10 +136,9 @@ REQUIRED_TOPICS=(
     "/clock"
     "/tf"
 )
-TOPIC_LIST=$(ros2 topic list 2>/dev/null)
 ALL_TOPICS_OK=true
 for topic in "${REQUIRED_TOPICS[@]}"; do
-    if echo "$TOPIC_LIST" | grep -qx "$topic"; then
+    if python3 "$_HELPERS" wait_for_topic "$topic" 15 > /dev/null 2>&1; then
         info "  found $topic"
     else
         fail "T-S1: missing topic $topic"
