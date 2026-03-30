@@ -38,6 +38,15 @@ if [[ -f /opt/ros/jazzy/setup.bash ]]; then
     exit 1
 fi
 
+# ── guard: docker daemon must be running ─────────────────────────────────────
+if ! docker info &>/dev/null; then
+    echo "ERROR: Docker daemon is not running."
+    echo "  Start it:  sudo systemctl start docker"
+    echo "  Auto-start: sudo systemctl enable --now docker"
+    echo "  If you lack permission: sudo usermod -aG docker \$USER  (then re-login)"
+    exit 1
+fi
+
 echo "Workspace : $WORKSPACE"
 echo "DISPLAY   : $DISPLAY"
 echo "Launching RViz2 URDF viewer..."
