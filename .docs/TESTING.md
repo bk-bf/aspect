@@ -33,7 +33,7 @@ colcon test --packages-select aspect_bringup aspect_control aspect_navigation
 colcon test-result --verbose
 ```
 
-Pass: flake8, pep257, copyright all green for `aspect_control` and `aspect_navigation`; `aspect_bringup` copyright enabled (skip decorator removed — see B-018; confirm with full container run).
+Pass: flake8, pep257, copyright all green.
 
 ---
 
@@ -109,7 +109,7 @@ Pass: `w` → forward velocity on `/cmd_vel`; `space` → zeros; `q` → clean e
 | Test | Date | Result | Notes |
 |---|---|---|---|
 | Prerequisites (build) | 2026-03-26 | PASS | 6 packages, 0 errors |
-| T-L1 linter | 2026-03-26 | PASS | 9 tests, 0 failures (copyright now enabled in all packages; re-run needed to confirm aspect_bringup — see B-018) |
+| T-L1 linter | 2026-03-30 | PASS | 9 tests, 0 failures, 0 skipped — copyright enabled and passing in all packages (B-018 resolved) |
 | T-S1 topic smoke | 2026-03-26 | PASS | 5 topics confirmed |
 | T-D1 manual drive | 2026-03-26 | PASS | x=0.659m after 5s at 0.2m/s |
 | T-D2 waypoint service | 2026-03-26 | PASS | `success=True`; cmd_vel linear.x=0.2 |
