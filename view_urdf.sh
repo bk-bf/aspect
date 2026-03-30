@@ -59,6 +59,12 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# ── ensure image exists ───────────────────────────────────────────────────────
+if ! sudo docker image inspect aspect:jazzy &>/dev/null 2>&1; then
+    echo "Image 'aspect:jazzy' not found locally — building (~10 min first time)..."
+    sudo docker build -f "$SCRIPT_DIR/.docker/Dockerfile" -t aspect:jazzy "$SCRIPT_DIR"
+fi
+
 echo "Workspace : $WORKSPACE"
 echo "DISPLAY   : $DISPLAY"
 echo "Launching RViz2 URDF viewer..."
