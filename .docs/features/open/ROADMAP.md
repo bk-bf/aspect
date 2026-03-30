@@ -48,6 +48,10 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 > - **Group D — unblocked once T-103 + T-104 done** (T-AI-01 → T-AI-02, T-AI-03): VLA fine-tuning, inference node, domain randomisation
 >
 > T-107 is the join point for Group B — requires T-105 + T-106 both complete.
+>
+> *Competition fork (D-015): if a Lunabotics-style opportunity is confirmed, fork
+> only `aspect_description` + `aspect_gazebo`; nav/AI/bringup stack is shared
+> unchanged. Est. ~1 weekend once T-103 is stable. No tasks created until confirmed.*
 
 [PARALLEL A — start immediately, no shared deps]
 - [x] T-101 [`aspect_navigation`]: Nav2 stack integration (costmap, global + local planner)
@@ -58,13 +62,13 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
         Interface: publishes `/excavation/joint_state`, subscribes
         `/excavation/cmd` (`rpm: float`, `feed_rate: float`).
         Phase 3 thermal extension (T-302) adds resistive heating to this link —
-        design auger body link to accept a `<thermal>` plugin slot. *(see D-013)*
+        design auger body link to accept a `<thermal>` plugin slot. *(see D-013, D-014)*
         ⚠ *`feature/t-102-scoop-urdf` contains a superseded scoop stub — discard
         and replace with auger design before merging.*
 - [x] T-108 [infra]: Refactor `test.sh` — extract ROS message parsing into `src/aspect_scripts/test_helpers.py`; bash retains process orchestration (`colcon`, `docker`, `gz service`), Python handles structured parsing (`odom_field`, `wait_for_topic`, clock sampling)
 
 [PARALLEL B — unblocked once T-101 is done]
-- [ ] T-105: Lunar terrain Nav2 parameter tuning *(needs T-101)*
+- [ ] T-105: Lunar terrain Nav2 parameter tuning *(needs T-101; validates D-014 wheelbase constraint — document final wheelbase spec before T-201)*
 - [ ] T-106 [`aspect_bringup`]: Sensor fusion — wheel odometry + IMU via EKF validated in sim *(needs T-101; parallel with T-105)*
 
 [PARALLEL C — unblocked once T-101 + T-102 are done]
@@ -79,15 +83,15 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 [sequential after T-105 + T-106]
 - [ ] T-107: 30-minute stability test passing in CI *(needs T-101, T-105, T-106)*
 
-[PARALLEL D — VLA foundation, unblocked once T-103 + T-104 done]
-- [ ] T-AI-01 [`aspect_navigation`]: OpenVLA-OFT fine-tuning on Gazebo rollouts
+[PARALLEL D — VLA foundation, unblocked once T-103 + T-104 done] *(implements D-016 Tier 2)*
+- [ ] T-AI-01 [`aspect_navigation`]: OpenVLA-OFT fine-tuning on Gazebo rollouts *(D-016 Tier 2 policy)*
       — LoRA adapters on `openvla/openvla-7b-oft` (HuggingFace); input: camera
         frame (RGB, 224×224) + goal waypoint as text; output: action tokens
         decoded to `[v_x, ω_z, auger_rpm, feed_rate]`; train on rollout dataset
         exported by T-104; target: > 75% excavation success in held-out sim
         episodes. Hardware: same Vast.ai instance as T-206 (share budget).
         *(needs T-103, T-104 rollout dataset)*
-- [ ] T-AI-02 [`aspect_navigation`]: VLA inference ROS 2 node
+- [ ] T-AI-02 [`aspect_navigation`]: VLA inference ROS 2 node *(D-016 Tier 2 — production policy replacing PPO)*
       — wraps OpenVLA-OFT at ~30ms/step via HuggingFace transformers + 4-bit
         quantisation; publishes `/cmd_vel` and `/excavation/cmd`; falls back to
         Nav2 reactive layer if inference latency > 50ms (watchdog timer).
@@ -111,7 +115,7 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 > - **Track B — RL production** (T-206 → T-207): cloud GPU migration, then hyperparam
 >   search; sequential within the track, independent of Track A
 > - **Track C — rover intelligence** (T-AI-04 → T-AI-05): LLM task planner then
->   hierarchical tier integration; needs T-201 for hardware grounding
+>   hierarchical tier integration; needs T-201 for hardware grounding *(implements D-016)*
 >
 > T-208 (field trial) needs Tracks A, B, and C complete — it is the join point for this phase.
 
