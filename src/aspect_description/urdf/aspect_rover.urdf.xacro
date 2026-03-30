@@ -243,6 +243,9 @@
     <axis xyz="0 0 -1"/>
     <limit lower="0" upper="${auger_feed_travel}"
            effort="50.0" velocity="0.01"/>
+    <!-- Friction >> gravity force on housing (0.036 kg × 9.81 ≈ 0.35 N) so
+         the joint stays retracted at sim start without an active controller. -->
+    <dynamics damping="5.0" friction="2.0"/>
   </joint>
 
   <!-- Auger bit — rotates within housing -->
