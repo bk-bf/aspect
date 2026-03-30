@@ -81,7 +81,7 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 >
 > T-208 (field trial) needs both tracks complete — it is the join point for this phase.
 
-[PARALLEL A — hardware chain, start with RPi bring-up]
+[PARALLEL A — hardware chain, sequential internally; start with T-201]
 - [ ] T-201: RPi 4B bring-up with ROS 2 Jazzy
 - [ ] T-202: GY-521 IMU driver node *(needs T-201)*
 - [ ] T-203: Faulhaber 1524 / SG90 motor driver node *(needs T-201)*
@@ -122,7 +122,7 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 > Goal: TRL-5. 72-hour autonomous operation demonstrated in Svalbard (-40 °C) and
 > Atacama Desert. Requires funded partnerships for lab access.
 
-[PARALLEL A — can proceed once partnerships secured]
+[PARALLEL A — foundational systems + hardware, can start once partnerships secured]
 - [ ] T-401: Sensor fusion for multi-modal data integration
 - [ ] T-402: Fault-tolerant autonomous operation framework
 - [ ] T-405: Thermal-vacuum chamber testing at partner facility
@@ -137,7 +137,7 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 > Goal: TRL-6. Mission-relevant performance metrics. H₂ production rate sufficient
 > for propellant depot feasibility study. Requires $2-5M funding (SBIR/STTR).
 
-[PARALLEL A — technical + funding tracks, independent]
+[PARALLEL A — technical + funding tracks, independent of each other]
 - [ ] T-501: Full-scale system < 500 W total power consumption
 - [ ] T-502: Partner with commercial electrolysis provider (OxEon or equiv. TRL-5+)
 - [ ] T-504: SBIR/STTR Phase I proposal submission
@@ -151,12 +151,12 @@ Current phase: **Phase 0** (2026 Q1). Completed items move to [`../archive/READM
 > lunar H₂ production. Requires NASA/commercial contract. See
 > [FEASIBILITY-2026.md](../../research/FEASIBILITY-2026.md) for funding pathway.
 
-[PARALLEL A — pre-flight design & proposal, independent of each other]
+[PARALLEL A — pre-flight design + proposal, independent of each other]
 - [ ] T-601: NASA CLPS proposal (lunar surface demonstration)
 - [ ] T-602: Flight-qualified design, mass budget < 100 kg
 - [ ] T-603: Preliminary Design Review (PDR) with industry partners
 
-[PARALLEL B — qualification & manufacture; needs T-602 + T-603]
+[PARALLEL B — qualification + manufacture; needs T-602 + T-603]
 - [ ] T-701: Engineering qualification model (EQM) manufacture
 - [ ] T-702: Flight model (FM) + vibration/thermal-vac qualification
 
