@@ -1,4 +1,4 @@
-<!-- LOC cap: 166 (source: 830, ratio: 0.20, updated: 2026-03-30) -->
+<!-- LOC cap: 181 (source: 830, ratio: 0.20, updated: 2026-03-30) -->
 # AGENTS.md — ASPECT Rover Codebase Guide
 
 **Stack:** ROS 2 Jazzy · Gazebo Harmonic · Python · C++ · Docker · uv  
@@ -69,12 +69,27 @@ aspect/
 # Build image (~10 min first time)
 docker build -f .docker/Dockerfile -t aspect:jazzy .
 
-# GUI dev (Gazebo, RViz2) — recommended
+# GUI dev — VPS with NVIDIA GPU
 rocker --x11 --nvidia --user --volume $(pwd):/workspace aspect:jazzy
+
+# GUI dev — laptop (Intel/AMD, XWayland/X11, no NVIDIA)
+rocker --x11 --devices /dev/dri --user --volume $(pwd):/workspace aspect:jazzy
 
 # Headless
 docker compose -f .docker/docker-compose.yml up -d
 docker compose -f .docker/docker-compose.yml exec aspect_dev bash
+```
+
+### Visual URDF validation (laptop one-liner)
+
+```bash
+# View rover model in RViz2 with joint sliders — run from repo root
+docker run --rm -it \
+  -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+  --device /dev/dri \
+  -v $(pwd):/workspace -w /workspace \
+  aspect:jazzy \
+  bash -c "source install/setup.bash && ros2 launch aspect_description view_urdf.launch.py"
 ```
 
 ---
