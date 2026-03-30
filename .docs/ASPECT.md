@@ -1,6 +1,6 @@
 ---
 status: active
-updated: 2026-03-26
+updated: 2026-03-30
 ---
 # ASPECT — Autonomous Surface Precision Excavation for Celestial Terrain
 
@@ -29,9 +29,9 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for package diagram and data flow.
 |---|---|
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Package layout, data flow, interfaces |
 | [PHILOSOPHY.md](PHILOSOPHY.md) | Guiding principles and scope boundaries |
-| [DECISIONS.md](DECISIONS.md) | Architectural decisions D-001 through D-010 |
+| [DECISIONS.md](DECISIONS.md) | Architectural decisions D-001 through D-012 |
 | [features/open/ROADMAP.md](features/open/ROADMAP.md) | Open tasks T-001 through T-704 |
-| [bugs/BUGS.md](bugs/BUGS.md) | Known defects B-001 through B-008 |
+| [bugs/BUGS.md](bugs/BUGS.md) | Known defects B-000 through B-018 |
 | [research/FEASIBILITY-2026.md](research/FEASIBILITY-2026.md) | Market/funding feasibility analysis |
 | [tasks/yearly/ASPECT-2026-Yearly.md](tasks/yearly/ASPECT-2026-Yearly.md) | 2026 yearly milestones |
 | [tasks/monthly/](tasks/monthly/) | Monthly sprint milestones |

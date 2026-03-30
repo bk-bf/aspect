@@ -1,4 +1,4 @@
-<!-- LOC cap: 60 (source: 300, ratio: 0.20, updated: 2026-03-26) -->
+<!-- LOC cap: 282 (source: 1410, ratio: 0.20, updated: 2026-03-30) -->
 # TESTING
 
 All testing runs **inside the Docker container**. See `AGENTS.md` for container entry commands.
@@ -33,7 +33,7 @@ colcon test --packages-select aspect_bringup aspect_control aspect_navigation
 colcon test-result --verbose
 ```
 
-Pass: flake8, pep257, copyright all green.
+Pass: flake8, pep257, copyright all green for `aspect_control` and `aspect_navigation`; `aspect_bringup` copyright enabled (skip decorator removed — see B-018; confirm with full container run).
 
 ---
 
@@ -54,6 +54,18 @@ Pass: all topics present.
 | `/model/aspect_rover/imu` | `sensor_msgs/Imu` |
 | `/clock` | `rosgraph_msgs/Clock` |
 | `/tf` | `tf2_msgs/TFMessage` |
+
+---
+
+## T-N1 — Nav2 stack smoke test
+
+```bash
+ros2 launch aspect_navigation nav2.launch.py &
+sleep 10
+ros2 action list
+```
+
+Pass: `/navigate_to_pose` and `/navigate_through_poses` action servers present.
 
 ---
 
@@ -97,7 +109,7 @@ Pass: `w` → forward velocity on `/cmd_vel`; `space` → zeros; `q` → clean e
 | Test | Date | Result | Notes |
 |---|---|---|---|
 | Prerequisites (build) | 2026-03-26 | PASS | 6 packages, 0 errors |
-| T-L1 linter | 2026-03-26 | PASS | 9 tests, 0 failures, 1 skipped (copyright) |
+| T-L1 linter | 2026-03-26 | PASS | 9 tests, 0 failures (copyright now enabled in all packages; re-run needed to confirm aspect_bringup — see B-018) |
 | T-S1 topic smoke | 2026-03-26 | PASS | 5 topics confirmed |
 | T-D1 manual drive | 2026-03-26 | PASS | x=0.659m after 5s at 0.2m/s |
 | T-D2 waypoint service | 2026-03-26 | PASS | `success=True`; cmd_vel linear.x=0.2 |
@@ -124,6 +136,6 @@ Pass: `w` → forward velocity on `/cmd_vel`; `space` → zeros; `q` → clean e
 | Item | Blocker |
 |---|---|
 | Gazebo GUI / meshes | T-005 (no real URDF meshes yet) |
-| EKF `/odometry/filtered` | Requires clock to stabilise (~30s); bridge lazy-connects |
-| nav2 costmap | T-010 not implemented |
+| EKF `/odometry/filtered` | Requires clock to stabilise (~12 s); bridge lazy-connects |
+| nav2 costmap | T-010 complete; T-N1 smoke test result pending (run in container) |
 | 30-min stability | T-107, Phase 1 |

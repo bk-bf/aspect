@@ -84,15 +84,16 @@ documented for out-of-container use.
 ## D-006 — Proportional controller for Phase 0 navigation
 
 **Date:** 2026-03-08  
-**Status:** Active
+**Status:** Active (partially superseded by D-012 for nav2 costmap)
 
 **Decision:** `simple_waypoint_nav.py` uses a proportional heading + distance
 controller rather than nav2/SLAM.
 
 **Rationale:** nav2 requires a costmap, sensor setup, and parameter tuning that is
 out of scope for Phase 0. The P-controller is sufficient for open-loop waypoint
-following in simulation and provides a testable baseline. nav2 integration is a
-Phase 1 task.
+following in simulation and provides a testable baseline. Full nav2 integration
+(local planner, DWB, SLAM) remains a Phase 1 task (T-101); the Phase 0 nav2 costmap
++ global planner addition is captured in D-012.
 
 ---
 
@@ -200,3 +201,23 @@ breaks." Sim-to-real gap is best discovered early. Over-optimising for Gazebo ph
 
 **Rejected:** 10-week simulation-only phase — delays hardware feedback, risks
 discovering sim-to-real gap too late in the project.
+
+---
+
+## D-012 — Partial nav2 integration pulled into Phase 0 (T-010)
+
+**Date:** 2026-03-30  
+**Status:** Active
+
+**Decision:** Pull nav2 global costmap + NavFn global planner + BT navigator into
+Phase 0 as T-010, alongside the proportional P-controller (D-006). Full nav2
+integration (local planner DWB, SLAM, parameter tuning) remains Phase 1 (T-101).
+
+**Rationale:** The global costmap and planner are relatively low-overhead to wire up
+(config file + launch file; no sensor tuning). Having them in place in Phase 0 lets
+Phase 1 work start from a functioning nav2 skeleton rather than from scratch, reducing
+Phase 1 integration risk. The P-controller remains the active autonomous navigation
+path; nav2 is wired but not the primary control loop until T-101.
+
+**Rejected:** Deferring all nav2 to Phase 1 — creates a larger Phase 1 integration
+cliff; the costmap config is cleaner to write while the simulation is being stood up.
