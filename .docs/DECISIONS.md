@@ -221,3 +221,100 @@ path; nav2 is wired but not the primary control loop until T-101.
 
 **Rejected:** Deferring all nav2 to Phase 1 — creates a larger Phase 1 integration
 cliff; the costmap config is cleaner to write while the simulation is being stood up.
+
+---
+
+## D-013 — Excavation Mechanism: Auger as Canonical
+
+**Date:** 2026-03-30  
+**Status:** Active
+
+**Decision:** Auger (continuous helical drill + vertical feed) is the canonical
+excavation mechanism for ASPECT. Scoop arm and bucket drum designs are deferred
+to a competition fork (D-015) only.
+
+**Rationale:** 2 DOF only (rotation + prismatic feed) vs. 3–5 for a scoop arm —
+simpler URDF, RL action space, and real hardware. Sub-surface access (0.5–2 m depth)
+is required for ice-bearing regolith at the lunar south pole; surface scoops reach
+only the radiation-baked dry top layer. Torsional reaction force is manageable via
+wide wheelbase with no complex counter-rotation mechanism at 1:10 scale. Directly
+pre-adapts T-302 (Phase 3 heated auger thermal extraction) — the auger body becomes
+the extraction subsystem with resistive heating added to the flights. Reference
+architecture: NASA LADI (Lunar Auger Dryer ISRU), AIAA 2023-4758.
+
+**Non-goal:** High-volume surface regolith throughput (Lunabotics-style metric). For
+that use case, see D-015 (competition fork).
+
+**Rejected:** Scoop arm — higher DOF, surface access only; bucket drum —
+counter-rotation mechanism adds hardware complexity at 1:10 scale.
+
+---
+
+## D-014 — Chassis Design Constraint: Auger Torque Reaction
+
+**Date:** 2026-03-30  
+**Status:** Active
+
+**Decision:** Wheelbase must be wide enough that (torque arm × wheel normal force)
+exceeds maximum auger reaction torque at nominal RPM. Validated in T-105 (terrain
+parameter tuning). Final wheelbase spec documented in `aspect_description` before
+T-201 (RPi bring-up) so the hardware build matches sim geometry.
+
+**Rationale:** The auger's torsional reaction torque during drilling attempts to
+rotate the rover body counter to the auger spin direction. On loose low-gravity
+regolith, wheel traction is the primary resistive force. Spec must be locked before
+hardware fabrication begins.
+
+---
+
+## D-015 — Competition Fork Strategy: Lunabotics Variant
+
+**Date:** 2026-03-30  
+**Status:** Planned (if Lunabotics opportunity confirmed)
+
+**Decision:** If a Lunabotics-style competition (judged on bulk regolith mass
+deposited) becomes a target, fork `aspect_description` and `aspect_gazebo` only.
+The nav, control, AI, and bringup stack is mechanism-agnostic and shared unchanged.
+
+**Fork scope (~3–4 files):**
+- `aspect_description/urdf/` — replace auger URDF with bucket drum (RASSOR-style,
+  counter-rotating for zero net torque reaction; reference: EZ-RASSOR open source)
+- `aspect_gazebo/worlds/` — swap lunar south pole world with flat competition arena
+- `aspect_navigation/` — swap reward function: `mass_deposited` replaces
+  `water_yield`; Nav2 params identical
+- Keep `/excavation/cmd` ROS 2 topic interface identical so fork stays shallow
+
+**Implementation cost:** ~1 weekend once T-103 gym env is stable. No roadmap tasks
+created until opportunity is confirmed.
+
+**Rejected:** Full fork of nav/AI/bringup stack — unnecessary; the
+mechanism-agnostic interface design means only description and world files change.
+
+---
+
+## D-016 — AI Stack Architecture: Three-Tier Hierarchical Control
+
+**Date:** 2026-03-30  
+**Status:** Planned (Phase 2)
+
+**Decision:** Adopt a three-tier hierarchical control architecture replacing the
+flat PPO→Nav2 design.
+
+- **Tier 1 — Reactive (< 10 ms):** Nav2 + EKF, cliff detection, safety reflexes
+- **Tier 2 — Manipulation (< 50 ms):** VLA policy (OpenVLA-OFT, LoRA fine-tuned
+  on Gazebo rollouts) — camera frame + goal text → `[v_x, ω_z, θ_auger]` action tokens
+- **Tier 3 — Planning (< 2 s):** LLM task planner (Qwen2.5-7B or Gemma-3 via
+  Ollama) — symbolic mission state → task commands; text↔action overhead quarantined
+  here where latency budget is acceptable
+
+**PPO role:** Retained as reward-function validator (T-104) and rollout data
+generator for VLA fine-tuning (T-AI-01). Not the production policy.
+
+**Multi-rover:** Mesh-first (T-AI-06, Phase 3); satellite relay deferred to Phase 5+.
+
+**Model choice:** OpenVLA-OFT (7B, LoRA) as default. Re-evaluate against alternatives
+at T-AI-01 completion (Q3 2026).
+
+**Rejected:** Flat PPO production policy — text serialisation overhead from LLM
+planner is unacceptable at < 50ms; VLA handles the manipulation tier more
+sample-efficiently than PPO for camera-based tasks.
