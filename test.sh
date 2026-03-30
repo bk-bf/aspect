@@ -43,6 +43,9 @@ pass() { echo -e "${GREEN}PASS${NC}  $1"; }
 fail() { echo -e "${RED}FAIL${NC}  $1"; FAILURES+=("$1"); }
 info() { echo -e "${YELLOW}....${NC}  $1"; }
 
+# ── Python parsing helpers ───────────────────────────────────────────────────
+_HELPERS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/src/aspect_scripts/test_helpers.py"
+
 FAILURES=()
 SIM_PID=""
 
@@ -103,17 +106,13 @@ fi
 
 # Wait for sim clock to advance past 0 (B-011: /clock bridge lazy, takes ~12 s post-unpause)
 info "Waiting for sim clock to advance (up to 45 s)..."
-CLOCK_READY=false
-for i in $(seq 1 45); do
-    CLK_SEC=$(timeout 2 ros2 topic echo /clock --once 2>/dev/null \
-              | grep "^  sec:" | head -1 | awk '{print $2}' || true)
-    if [[ -n "$CLK_SEC" ]] && awk "BEGIN{exit !($CLK_SEC > 0)}"; then
-        info "Sim clock advancing after ${i}s (sec=${CLK_SEC})"
-        CLOCK_READY=true
-        break
-    fi
-    sleep 1
-done
+CLOCK_INFO=$(python3 "$_HELPERS" wait_for_clock 45 2>/dev/null || true)
+if [[ -n "$CLOCK_INFO" ]]; then
+    info "Sim clock advancing $CLOCK_INFO"
+    CLOCK_READY=true
+else
+    CLOCK_READY=false
+fi
 $CLOCK_READY || info "WARNING: sim clock still 0 after 45 s — T-D1 may fail"
 
 # Brief settle for EKF to initialise once clock is running
@@ -185,10 +184,7 @@ NAV_PID=$!
 
 # Wait up to 15 s for the service to become available
 info "Waiting for /goto_waypoint service..."
-for i in $(seq 1 15); do
-    ros2 service list 2>/dev/null | grep -qx '/goto_waypoint' && break
-    sleep 1
-done
+python3 "$_HELPERS" wait_for_service /goto_waypoint 15 > /dev/null 2>&1 || true
 
 SVC_RESULT=$(timeout 10 ros2 service call /goto_waypoint aspect_msgs/srv/GotoWaypoint \
     "{x: 5.0, y: 0.0}" 2>/dev/null || true)
@@ -202,10 +198,11 @@ if echo "$SVC_RESULT" | grep -qE "success[=:] ?True"; then
 else
     fail "T-D2: service did not return success=True (got: $(echo "$SVC_RESULT" | tr '\n' ' '))"
 fi
-if echo "$CMD" | grep -qE "x: 0\.[1-9]|x: [1-9]"; then
-    pass "T-D2: /cmd_vel published non-zero linear.x"
+# Accept any non-zero velocity component (rover may need to turn before driving forward)
+if echo "$CMD" | grep -qE "[xyz]: -?0\.[1-9]|[xyz]: -?[1-9]"; then
+    pass "T-D2: /cmd_vel published non-zero velocity command"
 else
-    fail "T-D2: /cmd_vel linear.x was zero or missing"
+    fail "T-D2: /cmd_vel was zero or missing after waypoint service call"
 fi
 
 # ── T-D3 — skipped ────────────────────────────────────────────────────────────
@@ -224,32 +221,19 @@ echo "=== T-D4: Pose displacement — rover navigates toward waypoint ==="
 
 # Helper: extract position.x or position.y from a single /odometry/filtered msg.
 # Usage: odom_field <x|y>
-odom_field() {
-    local field="$1"
-    python3 - <<PYEOF
-import subprocess, sys
-try:
-    out = subprocess.check_output(
-        ["ros2", "topic", "echo", "/odometry/filtered", "--once",
-         "--field", "pose.pose.position"],
-        timeout=4, stderr=subprocess.DEVNULL, text=True
-    )
-    for line in out.splitlines():
-        line = line.strip()
-        if line.startswith("${field}:"):
-            print(line.split(":")[1].strip())
-            sys.exit(0)
-except Exception:
-    pass
-print("")
-PYEOF
-}
+odom_field() { python3 "$_HELPERS" odom_field "$1"; }
 
-info "Sampling baseline pose from /odometry/filtered..."
-BASE_X=$(odom_field x)
+info "Sampling baseline pose from /odometry/filtered (up to 15 s)..."
+BASE_X=""
+for _sb in $(seq 1 15); do
+    BASE_X=$(odom_field x)
+    [[ -n "$BASE_X" ]] && break
+    info "  /odometry/filtered not yet ready, retrying (${_sb}/15)..."
+    sleep 1
+done
 BASE_Y=$(odom_field y)
 if [[ -z "$BASE_X" ]]; then
-    fail "T-D4: could not read baseline pose from /odometry/filtered"
+    fail "T-D4: could not read baseline pose from /odometry/filtered after 15 s"
 else
     info "Baseline: x=${BASE_X} y=${BASE_Y}"
 
@@ -259,10 +243,7 @@ else
     NAV4_PID=$!
 
     # Wait for service
-    for i in $(seq 1 15); do
-        ros2 service list 2>/dev/null | grep -qx '/goto_waypoint' && break
-        sleep 1
-    done
+    python3 "$_HELPERS" wait_for_service /goto_waypoint 15 > /dev/null 2>&1 || true
 
     info "Sending goto_waypoint {x: 5.0, y: 0.0}..."
     timeout 5 ros2 service call /goto_waypoint aspect_msgs/srv/GotoWaypoint \
@@ -319,10 +300,7 @@ info "Starting fresh nav node for T-D5..."
 ros2 launch aspect_navigation waypoint_nav.launch.py \
     > /tmp/aspect_nav_t5.log 2>&1 &
 NAV5_PID=$!
-for i in $(seq 1 15); do
-    ros2 service list 2>/dev/null | grep -qx '/goto_waypoint' && break
-    sleep 1
-done
+python3 "$_HELPERS" wait_for_service /goto_waypoint 15 > /dev/null 2>&1 || true
 
 timeout 5 ros2 service call /goto_waypoint aspect_msgs/srv/GotoWaypoint \
     "{x: 8.0, y: 0.0}" > /dev/null 2>&1 || true
@@ -352,12 +330,7 @@ else
     D5_STOPPED=false
     for _j in $(seq 1 15); do
         CMD5=$(timeout 3 ros2 topic echo /cmd_vel --once 2>/dev/null || true)
-        LX5=$(echo "$CMD5" | python3 -c "
-import sys, re
-for line in sys.stdin:
-    m = re.search(r'linear.*?x:\s*([-\d.]+)', line)
-    if m: print(m.group(1)); break
-" 2>/dev/null || true)
+        LX5=$(echo "$CMD5" | python3 "$_HELPERS" parse_twist_linear_x 2>/dev/null || true)
         # Also accept silence (no message published) as stopped
         if [[ -z "$CMD5" ]] || awk "BEGIN{v=${LX5:-0}; if(v<0)v=-v; exit !(v < 0.01)}"; then
             D5_STOPPED=true
