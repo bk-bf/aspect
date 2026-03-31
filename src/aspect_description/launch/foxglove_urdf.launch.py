@@ -52,6 +52,8 @@ def generate_launch_description():
             parameters=[{
                 'port': PythonExpression(
                     ['int(', LaunchConfiguration('port'), ')']),
+                'qos_overrides./robot_description.subscription.durability':
+                    'transient_local',
             }],
             output='screen'
         ),
