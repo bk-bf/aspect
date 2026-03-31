@@ -34,6 +34,10 @@ if $INSIDE_CONTAINER; then
     if [[ ! -f install/setup.bash ]]; then
         echo "==> No install/ found — building workspace (first run, ~2 min)..."
         colcon build --symlink-install 2>&1 | grep -E "^\[|^(Summary|ERROR)" || true
+    else
+        # Rebuild aspect_description to pick up any new launch files (instant with symlinks)
+        colcon build --symlink-install --packages-select aspect_description \
+            2>&1 | grep -E "^\[|^(Summary|ERROR)" || true
     fi
     # shellcheck source=/dev/null
     set +u; source install/setup.bash; set -u
