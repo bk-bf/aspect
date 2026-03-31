@@ -69,6 +69,7 @@ Requires=docker.service
 Type=simple
 ExecStartPre=-/usr/bin/docker stop ${BRIDGE_SVC}
 ExecStartPre=-/usr/bin/docker rm   ${BRIDGE_SVC}
+ExecStartPre=-/bin/sh -c '/usr/bin/docker ps -q --filter publish=${BRIDGE_PORT} | xargs -r /usr/bin/docker stop'
 ExecStart=/usr/bin/docker run --name ${BRIDGE_SVC} \\
     -p 0.0.0.0:${BRIDGE_PORT}:${BRIDGE_PORT} \\
     -v ${SCRIPT_DIR}:/workspace \\
