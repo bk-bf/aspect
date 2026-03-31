@@ -96,7 +96,7 @@ echo "Press Ctrl+C to stop."
 echo ""
 
 $DOCKER run --rm -it \
-    -p "${FOXGLOVE_PORT}:${FOXGLOVE_PORT}" \
+    -p "0.0.0.0:${FOXGLOVE_PORT}:${FOXGLOVE_PORT}" \
     -v "$WORKSPACE":/workspace \
     -w /workspace \
     aspect:jazzy \
