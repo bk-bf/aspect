@@ -80,20 +80,20 @@ docker compose -f .docker/docker-compose.yml up -d
 docker compose -f .docker/docker-compose.yml exec aspect_dev bash
 ```
 
-### Visual URDF validation (Foxglove Studio — no display needed)
+### Visual URDF validation (Foxglove Desktop — no display needed)
 
 ```bash
-# Install persistent background services (run once on VPS)
+# Install persistent background service (run once on VPS)
 bash view_urdf.sh install
 
 # Lifecycle management
-bash view_urdf.sh status   # check bridge + UI status and print URLs
+bash view_urdf.sh status   # check bridge status and print connection URL
 bash view_urdf.sh restart  # after workspace changes
 bash view_urdf.sh stop
 bash view_urdf.sh logs     # tail bridge logs
 
-# Open in browser — plain HTTP, any browser, any OS
-# http://<machine>.ts.net:8080  →  Open Connection → ws://<machine>.ts.net:8765
+# Connect from Foxglove Desktop (laptop, any OS)
+# Open Connection → Foxglove WebSocket → ws://<machine>.ts.net:8765
 ```
 
 ---
