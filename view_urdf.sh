@@ -85,6 +85,13 @@ if ! $DOCKER image inspect aspect:jazzy &>/dev/null 2>&1; then
     $DOCKER build -f "$SCRIPT_DIR/.docker/Dockerfile" -t aspect:jazzy "$SCRIPT_DIR"
 fi
 
+# ── kill any leftover container on that port ──────────────────────────────────
+EXISTING=$($DOCKER ps -q --filter "publish=${FOXGLOVE_PORT}" 2>/dev/null || true)
+if [[ -n "$EXISTING" ]]; then
+    echo "Stopping existing container on port ${FOXGLOVE_PORT}..."
+    $DOCKER stop $EXISTING >/dev/null
+fi
+
 echo "Workspace : $WORKSPACE"
 echo "Port      : $FOXGLOVE_PORT"
 echo ""
