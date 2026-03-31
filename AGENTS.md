@@ -88,8 +88,8 @@ bash view_urdf.sh                        # main branch
 bash view_urdf.sh --worktree <name>      # feature branch
 bash view_urdf.sh --port 8766            # custom port (default: 8765)
 
-# Open in browser (Tailscale MagicDNS)
-# https://studio.foxglove.dev → Open Connection → ws://<machine>.ts.net:8765
+# Open in browser — plain HTTP, any browser, any OS
+# http://<machine>.ts.net:8080  →  Open Connection → ws://<machine>.ts.net:8765
 ```
 
 ---
