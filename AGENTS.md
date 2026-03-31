@@ -80,16 +80,16 @@ docker compose -f .docker/docker-compose.yml up -d
 docker compose -f .docker/docker-compose.yml exec aspect_dev bash
 ```
 
-### Visual URDF validation (laptop one-liner)
+### Visual URDF validation (Foxglove Studio — no display needed)
 
 ```bash
-# View rover model in RViz2 with joint sliders — run from repo root
-docker run --rm -it \
-  -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
-  --device /dev/dri \
-  -v $(pwd):/workspace -w /workspace \
-  aspect:jazzy \
-  bash -c "source install/setup.bash && ros2 launch aspect_description view_urdf.launch.py"
+# On the VPS (or any host) — headless, no X11 required
+bash view_urdf.sh                        # main branch
+bash view_urdf.sh --worktree <name>      # feature branch
+bash view_urdf.sh --port 8766            # custom port (default: 8765)
+
+# Open in browser (Tailscale MagicDNS)
+# https://studio.foxglove.dev → Open Connection → ws://<machine>.ts.net:8765
 ```
 
 ---
