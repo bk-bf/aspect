@@ -7,8 +7,8 @@ regolith excavation ≥5 g/min at <50 W.
 
 **Stack:** ROS 2 Jazzy Jalisco (LTS May 2029) · Gazebo Harmonic · Docker · uv  
 **Phase:** 0 — Infrastructure & simulation foundation (2026)  
-**Roadmap:** [`.docs/features/open/ROADMAP.md`](.docs/features/open/ROADMAP.md)  
-**Architecture:** [`.docs/ARCHITECTURE.md`](.docs/ARCHITECTURE.md)
+**Roadmap:** [`docs/features/open/ROADMAP.md`](docs/features/open/ROADMAP.md)  
+**Architecture:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
 
 ---
 
@@ -66,7 +66,7 @@ aspect/
 │   ├── Dockerfile            # ROS 2 Jazzy + Gazebo Harmonic + uv
 │   ├── docker-compose.yml    # Container orchestration
 │   └── entrypoint.sh         # Sources ROS 2 overlay on container start
-├── .docs/                    # Planning & architecture documents (Obsidian vault)
+├── docs/                    # Planning & architecture documents (Obsidian vault)
 │   ├── ASPECT.md
 │   ├── Development-Architecture-Proposal.md
 │   ├── Execution-Roadmap-2026-2033.md

@@ -2,16 +2,16 @@
 # AGENTS.md — ASPECT Rover Codebase Guide
 
 **Stack:** ROS 2 Jazzy · Gazebo Harmonic · Python · C++ · Docker · uv  
-**Overview / architecture:** `.docs/ASPECT.md` · `.docs/ARCHITECTURE.md`  
-**Parent deployment docs:** `../.docs/` (ARCHITECTURE, PHILOSOPHY, DECISIONS, ROADMAP)
+**Overview / architecture:** `docs/ASPECT.md` · `docs/ARCHITECTURE.md`  
+**Parent deployment docs:** `../docs/` (ARCHITECTURE, PHILOSOPHY, DECISIONS, ROADMAP)
 
 ## Self-Maintenance Rules
 
 Keep this file ≤ LOC cap. After any meaningful session:
 - Commands changed? Update them here.
-- New quirk discovered? Add a one-liner; prose rationale → `.docs/`.
+- New quirk discovered? Add a one-liner; prose rationale → `docs/`.
 - Quirk resolved or already in BUGS.md? Remove it from here.
-- Section grown verbose? Extract to `.docs/` and replace with a backlink.
+- Section grown verbose? Extract to `docs/` and replace with a backlink.
 - Update the `<!-- LOC cap -->` date after each edit.
 
 ## Git Workflow
@@ -51,7 +51,7 @@ git push origin --delete feature/<feature>
 ```
 aspect/
 ├── .docker/          # Dockerfile, docker-compose.yml, entrypoint.sh
-├── .docs/            # Planning docs (Obsidian vault — not code)
+├── docs/            # Planning docs (Obsidian vault — not code)
 ├── AGENTS.md         # This file
 └── src/
     ├── aspect_bringup/     # ament_python — launch files
@@ -147,7 +147,7 @@ gz service -s /world/lunar_south_pole/control \
   --timeout 5000 --req 'pause: false'
 # Expected reply: data: true
 ```
-**3. `/clock` bridge lazy** — see B-011 in `.docs/bugs/BUGS.md`; poll for `/clock sec > 0` before drive tests (~12 s post-unpause).
+**3. `/clock` bridge lazy** — see B-011 in `docs/bugs/BUGS.md`; poll for `/clock sec > 0` before drive tests (~12 s post-unpause).
 
 ---
 
